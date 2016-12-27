@@ -1,5 +1,6 @@
 import Html exposing (..)
 import Html.Events exposing (..)
+import Html.Attributes exposing (..)
 import WebRTC exposing (..)
 
 main = Html.program
@@ -36,7 +37,7 @@ subscriptions model = WebRTC.listen Received
 view : Model -> Html Msg
 view model =
     div []
-        [ input [onInput Input] []
+        [ input [placeholder "Message (default: Hey!)", onInput Input] []
         , button [ onClick Send ] [ text "Send" ]
         , div [] (List.map viewMessage model.messages)
         ]
