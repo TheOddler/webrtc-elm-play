@@ -11,20 +11,22 @@ main = Html.program
 
 -- MODEL
 type alias Model = 
-    { receivedMessages : List String
+    { input : String
+    , messages : List String
     }
 
 init : (Model, Cmd Msg)
-init = (Model [], Cmd.none)
+init = (Model "Hey!" [], Cmd.none)
 
 -- UPDATE
-type Msg = Send String | Received String
+type Msg = Input String | Send | Received String
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
-        Send message -> (model, WebRTC.send message)
-        Received message -> ({ model | receivedMessages = message :: model.receivedMessages}, Cmd.none)
+        Input message -> ({ model | input = message}, Cmd.none)
+        Send -> (model, WebRTC.send model.input)
+        Received message -> ({ model | messages = message :: model.messages}, Cmd.none)
 
 -- SUBSCRIPTIONS
 subscriptions : Model -> Sub Msg
@@ -34,8 +36,9 @@ subscriptions model = WebRTC.listen Received
 view : Model -> Html Msg
 view model =
     div []
-        [ button [ onClick (Send "Hey") ] [ text "Send" ]
-        , div [] (List.map viewMessage model.receivedMessages)
+        [ input [onInput Input] []
+        , button [ onClick Send ] [ text "Send" ]
+        , div [] (List.map viewMessage model.messages)
         ]
 
 viewMessage msg =

@@ -7926,30 +7926,42 @@ var _user$project$Main$viewMessage = function (msg) {
 var _user$project$Main$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
-		if (_p0.ctor === 'Send') {
-			return {
-				ctor: '_Tuple2',
-				_0: model,
-				_1: _user$project$WebRTC$send(_p0._0)
-			};
-		} else {
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					model,
-					{
-						receivedMessages: {ctor: '::', _0: _p0._0, _1: model.receivedMessages}
-					}),
-				_1: _elm_lang$core$Platform_Cmd$none
-			};
+		switch (_p0.ctor) {
+			case 'Input':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{input: _p0._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'Send':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$WebRTC$send(model.input)
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							messages: {ctor: '::', _0: _p0._0, _1: model.messages}
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 		}
 	});
-var _user$project$Main$Model = function (a) {
-	return {receivedMessages: a};
-};
+var _user$project$Main$Model = F2(
+	function (a, b) {
+		return {input: a, messages: b};
+	});
 var _user$project$Main$init = {
 	ctor: '_Tuple2',
-	_0: _user$project$Main$Model(
+	_0: A2(
+		_user$project$Main$Model,
+		'Hey!',
 		{ctor: '[]'}),
 	_1: _elm_lang$core$Platform_Cmd$none
 };
@@ -7959,8 +7971,9 @@ var _user$project$Main$Received = function (a) {
 var _user$project$Main$subscriptions = function (model) {
 	return _user$project$WebRTC$listen(_user$project$Main$Received);
 };
-var _user$project$Main$Send = function (a) {
-	return {ctor: 'Send', _0: a};
+var _user$project$Main$Send = {ctor: 'Send'};
+var _user$project$Main$Input = function (a) {
+	return {ctor: 'Input', _0: a};
 };
 var _user$project$Main$view = function (model) {
 	return A2(
@@ -7969,25 +7982,35 @@ var _user$project$Main$view = function (model) {
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$button,
+				_elm_lang$html$Html$input,
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Events$onClick(
-						_user$project$Main$Send('Hey')),
+					_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$Input),
 					_1: {ctor: '[]'}
 				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text('Send'),
-					_1: {ctor: '[]'}
-				}),
+				{ctor: '[]'}),
 			_1: {
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					A2(_elm_lang$core$List$map, _user$project$Main$viewMessage, model.receivedMessages)),
-				_1: {ctor: '[]'}
+					_elm_lang$html$Html$button,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$Send),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('Send'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{ctor: '[]'},
+						A2(_elm_lang$core$List$map, _user$project$Main$viewMessage, model.messages)),
+					_1: {ctor: '[]'}
+				}
 			}
 		});
 };

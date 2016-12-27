@@ -1,0 +1,15 @@
+body {
+	background-color: rgb(230, 230, 230);
+}
+
+.wrapper {
+    width: 100%;
+}
+
+.wrapper .container {
+    width: 48%;
+    float: left;
+    margin: 1%;
+    background-color: rgb(255, 255, 255);
+    box-shadow: 2px 3px 5px 4px #aaa;
+}
