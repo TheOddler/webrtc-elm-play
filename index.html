@@ -2,47 +2,41 @@
     <head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>Pablo's Spel</title>
-
-		<link rel="stylesheet" type="text/css" href="css/styles.css">
 	</head>
     <body>
-        <h1>Pablo's WebRTC and Elm test</h1>
-        <p>The Elm app is run twice, and connected using WebRTC on a single page. A bit silly for a real app, but great for debugging.</p>
-        <div class="wrapper">
-            <div class="container" id="main1">
-            </div>
-            <div class="container" id="main2">
-            </div>
-        </div>
+        <div id="main">
 
 		<script src="simplepeer.min.js"></script>
         <script src="main.js" type="text/javascript"></script>
         <script src="webrtcconnect.js" type="text/javascript"></script>
         <script type="text/javascript">
             // Create elm
-            var app1 = Elm.Main.embed(document.getElementById('main1'))
-            var app2 = Elm.Main.embed(document.getElementById('main2'))
+            var app = Elm.Main.embed(document.getElementById('main'))
 
-            // Create two simple peers and connect, for debugging on one page
-            var peer1 = new SimplePeer({ initiator: true, trickle: false })
-            var peer2 = new SimplePeer({ initiator: false, trickle: false })
-            peer1.on('signal', function (data) { peer2.signal(data) })
-            peer2.on('signal', function (data) { peer1.signal(data) })
+            // Login to parent (later signaling server) to see if you are initiator or not
+            parent.postMessage({type: "login", data:"..."}, "*")
 
-            // Connect Elm and WebRTC
-            peer1.on('data', function (data) {
-                app1.ports.listen.send("" + data)
-            })
-            peer2.on('data', function (data) {
-                app2.ports.listen.send("" + data)
-            })
+            var peer = null
+            function initialize(initiator) {
+                // Create two simple peers and connect, for debugging on one page
+                peer = new SimplePeer({ initiator: initiator, trickle: false }) // TODO
+                peer.on('signal', function (data) {
+                    parent.postMessage({type: "signal", data: data}, "*")
+                })
 
-            app1.ports.send.subscribe(function(message) {
-                peer1.send(message)
-            })
-            app2.ports.send.subscribe(function(message) {
-                peer2.send(message)
-            })
+                // Connect Elm and WebRTC
+                var parent_ = parent
+                peer.on('data', function (data) {
+                    app.ports.listen.send("" + data)
+                })
+                app.ports.send.subscribe(function(message) {
+                    peer.send(message)
+                })
+            }
+
+            function signal(signal) {
+                peer.signal(signal)
+            }
 		</script>
     </body>
 </html>

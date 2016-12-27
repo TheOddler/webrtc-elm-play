@@ -1,15 +1,25 @@
 body {
 	background-color: rgb(230, 230, 230);
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-flow: column;
+}
+
+header {
+    text-align: center;
 }
 
 .wrapper {
-    width: 100%;
+    display: flex;
+    flex-flow: row;
+    flex: 1;
 }
 
 .wrapper .container {
-    width: 48%;
-    float: left;
-    margin: 1%;
+    flex: 1;
+    margin: 8px;
     background-color: rgb(255, 255, 255);
     box-shadow: 2px 3px 5px 4px #aaa;
 }
