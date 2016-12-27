@@ -17,7 +17,7 @@
             parent.postMessage({type: "login", data:"..."}, "*")
 
             var peer = null
-            function initialize(initiator) {
+            function initialize(initiator) { //called directly by parent when both players logged in
                 // Create two simple peers and connect, for debugging on one page
                 peer = new SimplePeer({ initiator: initiator, trickle: false }) // TODO
                 peer.on('signal', function (data) {
@@ -34,7 +34,7 @@
                 })
             }
 
-            function signal(signal) {
+            function signal(signal) { //called directly by parent
                 peer.signal(signal)
             }
 		</script>
