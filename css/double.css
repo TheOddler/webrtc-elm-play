@@ -8,7 +8,15 @@ body {
 }
 
 header {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
     text-align: center;
+}
+
+header h1, h2, h3, p {
+    margin: 0 10;
+    flex: 1;
 }
 
 .wrapper {
