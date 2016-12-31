@@ -27,7 +27,7 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         Input message -> ({ model | input = message}, Cmd.none)
-        Send -> (model, WebRTC.send <| WebRTC.Message "cat" model.input)
+        Send -> (model, WebRTC.send <| WebRTC.Message "chat" model.input)
         Received message -> 
             case message.channel of
                 "chat" -> ({ model | messages = message.data :: model.messages}, Cmd.none)

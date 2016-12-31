@@ -8312,7 +8312,7 @@ var _user$project$Main$update = F2(
 					ctor: '_Tuple2',
 					_0: model,
 					_1: _user$project$WebRTC$send(
-						A2(_user$project$WebRTC$Message, 'cat', model.input))
+						A2(_user$project$WebRTC$Message, 'chat', model.input))
 				};
 			default:
 				var _p2 = _p0._0;
