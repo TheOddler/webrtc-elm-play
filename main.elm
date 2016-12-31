@@ -21,14 +21,17 @@ init : (Model, Cmd Msg)
 init = (Model "Hey!" [], Cmd.none)
 
 -- UPDATE
-type Msg = Input String | Send | Received String
+type Msg = Input String | Send | Received WebRTC.Message
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         Input message -> ({ model | input = message}, Cmd.none)
-        Send -> (model, WebRTC.send model.input)
-        Received message -> ({ model | messages = message :: model.messages}, Cmd.none)
+        Send -> (model, WebRTC.send <| WebRTC.Message "cat" model.input)
+        Received message -> 
+            case message.channel of
+                "chat" -> ({ model | messages = message.data :: model.messages}, Cmd.none)
+                channel -> (Debug.log ("Received message from unknown channel \"" ++ channel ++ "\"") model, Cmd.none)
 
 -- SUBSCRIPTIONS
 subscriptions : Model -> Sub Msg

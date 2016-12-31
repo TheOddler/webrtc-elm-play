@@ -8264,9 +8264,26 @@ var _user$project$Game$Model = F2(
 var _user$project$WebRTC$send = _elm_lang$core$Native_Platform.outgoingPort(
 	'send',
 	function (v) {
-		return v;
+		return {channel: v.channel, data: v.data};
 	});
-var _user$project$WebRTC$listen = _elm_lang$core$Native_Platform.incomingPort('listen', _elm_lang$core$Json_Decode$string);
+var _user$project$WebRTC$listen = _elm_lang$core$Native_Platform.incomingPort(
+	'listen',
+	A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (channel) {
+			return A2(
+				_elm_lang$core$Json_Decode$andThen,
+				function (data) {
+					return _elm_lang$core$Json_Decode$succeed(
+						{channel: channel, data: data});
+				},
+				A2(_elm_lang$core$Json_Decode$field, 'data', _elm_lang$core$Json_Decode$string));
+		},
+		A2(_elm_lang$core$Json_Decode$field, 'channel', _elm_lang$core$Json_Decode$string)));
+var _user$project$WebRTC$Message = F2(
+	function (a, b) {
+		return {channel: a, data: b};
+	});
 
 var _user$project$Main$viewMessage = function (msg) {
 	return A2(
@@ -8294,18 +8311,35 @@ var _user$project$Main$update = F2(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _user$project$WebRTC$send(model.input)
+					_1: _user$project$WebRTC$send(
+						A2(_user$project$WebRTC$Message, 'cat', model.input))
 				};
 			default:
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							messages: {ctor: '::', _0: _p0._0, _1: model.messages}
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
+				var _p2 = _p0._0;
+				var _p1 = _p2.channel;
+				if (_p1 === 'chat') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								messages: {ctor: '::', _0: _p2.data, _1: model.messages}
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: A2(
+							_elm_lang$core$Debug$log,
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'Received message from unknown channel \"',
+								A2(_elm_lang$core$Basics_ops['++'], _p1, '\"')),
+							model),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}
 		}
 	});
 var _user$project$Main$Model = F2(
