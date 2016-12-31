@@ -29,13 +29,12 @@ update msg model =
     case msg of
         Test -> (model, Cmd.none)
         Received message -> 
-            case message.channel of
-                "chat" -> 
-                    let 
-                        (chatModel, chatCmd) = Chat.update (Chat.Receive message.data) model.chat
-                    in 
-                        ({ model | chat = chatModel}, Cmd.map ForChat chatCmd)
-                _ -> (Debug.log ("Received message from unknown channel \"" ++ message.channel ++ "\"") model, Cmd.none)
+            let 
+                _ = Debug.log ("Received message on \"" ++ message.channel ++ "\": " ++ message.data)
+            in
+                ( model
+                , Cmd.none
+                )
         ForChat msg ->
             let 
                 (chatModel, chatCmd) = Chat.update msg model.chat
@@ -45,7 +44,11 @@ update msg model =
 
 -- SUBSCRIPTIONS
 subscriptions : Model -> Sub Msg
-subscriptions model = WebRTC.listen Received
+subscriptions model = 
+    Sub.batch 
+        [ WebRTC.listen Received
+        , Sub.map ForChat <| Chat.subscriptions model.chat
+        ]
 
 
 -- VIEW 

@@ -8366,6 +8366,8 @@ var _user$project$Chat$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
 		switch (_p0.ctor) {
+			case 'Ignore':
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'Input':
 				var message = model.message;
 				var newMessage = _elm_lang$core$Native_Utils.update(
@@ -8415,38 +8417,15 @@ var _user$project$Chat$update = F2(
 					};
 				}
 			default:
-				var _p2 = _p0._0;
-				var message = _user$project$Chat$decodeMessage(_p2);
-				var _p1 = message;
-				if (_p1.ctor === 'Ok') {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{
-								messages: {ctor: '::', _0: _p1._0, _1: model.messages}
-							}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				} else {
-					return {
-						ctor: '_Tuple2',
-						_0: A2(
-							_elm_lang$core$Debug$log,
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								'Received unreadable message on chat channel \"',
-								A2(
-									_elm_lang$core$Basics_ops['++'],
-									_p2,
-									A2(
-										_elm_lang$core$Basics_ops['++'],
-										'\" with error \"',
-										A2(_elm_lang$core$Basics_ops['++'], _p1._0, '\"')))),
-							model),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				}
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							messages: {ctor: '::', _0: _p0._0, _1: model.messages}
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 		}
 	});
 var _user$project$Chat$Receive = function (a) {
@@ -8555,6 +8534,35 @@ var _user$project$Chat$view = function (model) {
 			}
 		});
 };
+var _user$project$Chat$Ignore = {ctor: 'Ignore'};
+var _user$project$Chat$forChatMessages = function (webrtcMessage) {
+	if (_elm_lang$core$Native_Utils.eq(webrtcMessage.channel, 'chat')) {
+		var message = _user$project$Chat$decodeMessage(webrtcMessage.data);
+		var _p1 = message;
+		if (_p1.ctor === 'Ok') {
+			return _user$project$Chat$Receive(_p1._0);
+		} else {
+			return A2(
+				_elm_lang$core$Debug$log,
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'Received unreadable message on chat channel \"',
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						_elm_lang$core$Basics$toString(webrtcMessage.data),
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							'\" with error \"',
+							A2(_elm_lang$core$Basics_ops['++'], _p1._0, '\"')))),
+				_user$project$Chat$Ignore);
+		}
+	} else {
+		return _user$project$Chat$Ignore;
+	}
+};
+var _user$project$Chat$subscriptions = function (model) {
+	return _user$project$WebRTC$listen(_user$project$Chat$forChatMessages);
+};
 
 var _user$project$Main$Model = function (a) {
 	return {chat: a};
@@ -8574,39 +8582,20 @@ var _user$project$Main$update = F2(
 			case 'Test':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'Received':
-				var _p3 = _p0._0;
-				var _p1 = _p3.channel;
-				if (_p1 === 'chat') {
-					var _p2 = A2(
-						_user$project$Chat$update,
-						_user$project$Chat$Receive(_p3.data),
-						model.chat);
-					var chatModel = _p2._0;
-					var chatCmd = _p2._1;
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{chat: chatModel}),
-						_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$ForChat, chatCmd)
-					};
-				} else {
-					return {
-						ctor: '_Tuple2',
-						_0: A2(
-							_elm_lang$core$Debug$log,
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								'Received message from unknown channel \"',
-								A2(_elm_lang$core$Basics_ops['++'], _p3.channel, '\"')),
-							model),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				}
+				var _p2 = _p0._0;
+				var _p1 = _elm_lang$core$Debug$log(
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						'Received message on \"',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_p2.channel,
+							A2(_elm_lang$core$Basics_ops['++'], '\": ', _p2.data))));
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			default:
-				var _p4 = A2(_user$project$Chat$update, _p0._0, model.chat);
-				var chatModel = _p4._0;
-				var chatCmd = _p4._1;
+				var _p3 = A2(_user$project$Chat$update, _p0._0, model.chat);
+				var chatModel = _p3._0;
+				var chatCmd = _p3._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -8633,7 +8622,19 @@ var _user$project$Main$Received = function (a) {
 	return {ctor: 'Received', _0: a};
 };
 var _user$project$Main$subscriptions = function (model) {
-	return _user$project$WebRTC$listen(_user$project$Main$Received);
+	return _elm_lang$core$Platform_Sub$batch(
+		{
+			ctor: '::',
+			_0: _user$project$WebRTC$listen(_user$project$Main$Received),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$core$Platform_Sub$map,
+					_user$project$Main$ForChat,
+					_user$project$Chat$subscriptions(model.chat)),
+				_1: {ctor: '[]'}
+			}
+		});
 };
 var _user$project$Main$main = _elm_lang$html$Html$program(
 	{init: _user$project$Main$init, view: _user$project$Main$view, update: _user$project$Main$update, subscriptions: _user$project$Main$subscriptions})();

@@ -36,14 +36,16 @@ decodeMessage =
 
 -- UPDATE
 type Msg 
-    = Input String 
+    = Ignore
+    | Input String 
     | SendDebug
     | Send Message 
-    | Receive String
+    | Receive Message
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
+        Ignore -> (model, Cmd.none)
         Input input -> 
             let message = model.message
                 newMessage = {message | text = input}
@@ -71,17 +73,28 @@ update msg model =
                     )
 
         Receive msg -> 
-            let message = decodeMessage msg
-            in
-                case message of
-                    Ok msg -> 
-                        ( {model | messages = msg :: model.messages}
-                        , Cmd.none
-                        )
-                    Err error ->
-                        ( Debug.log ("Received unreadable message on chat channel \"" ++ msg ++ "\" with error \"" ++ error ++ "\"") model
-                        , Cmd.none
-                        )
+            ( {model | messages = msg :: model.messages}
+            , Cmd.none
+            )
+
+
+-- SUBSCRIPTIONS
+subscriptions : Model -> Sub Msg
+subscriptions model = WebRTC.listen forChatMessages
+
+forChatMessages : WebRTC.Message -> Msg
+forChatMessages webrtcMessage =
+    if webrtcMessage.channel == "chat"
+    then
+        let
+            message = decodeMessage webrtcMessage.data
+        in
+            case message of
+                Ok msg -> Receive msg
+                Err error -> Debug.log ("Received unreadable message on chat channel \"" ++ toString webrtcMessage.data ++ "\" with error \"" ++ error ++ "\"") Ignore
+    else
+        Ignore
+
 
 
 -- VIEW
