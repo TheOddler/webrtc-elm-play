@@ -18,7 +18,8 @@
             connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/'
             connection.session = { audio: false, video: false, data: true }
             connection.maxParticipantsAllowed = 1
-            connection.enableLogs = false //disables the many many logs
+            // or: connection.direction = "one-to-one" // "many-to-many"
+            connection.enableLogs = false //disables the many many logs for a cleaner console
 
             // Join testing room
             //await sleep(Math.random() * 100);
