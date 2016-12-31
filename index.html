@@ -25,7 +25,7 @@
             //await sleep(Math.random() * 100);
             var room = "Pablo's Testing Room" + location.hash
             connection.openOrJoin(room, function(roomExists, roomid) {
-                console.log((roomExists ? 'You joined room' : 'You created room') + ": " + roomid);
+                console.log((roomExists ? 'You joined room' : 'You created room') + ": " + roomid)
             })
 
             // Connect Elm and WebRTC
