@@ -6,7 +6,7 @@
     <body>
         <div id="main">
 
-		<script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
+		<script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.js"></script>
         <script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
         <script src="main.js" type="text/javascript"></script>
         <script type="text/javascript">
@@ -17,6 +17,8 @@
             var connection = new RTCMultiConnection()
             connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/'
             connection.session = { audio: false, video: false, data: true }
+            connection.maxParticipantsAllowed = 1
+            connection.enableLogs = false //disables the many many logs
 
             // Join testing room
             //await sleep(Math.random() * 100);

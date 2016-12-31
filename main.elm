@@ -2,6 +2,7 @@ import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 import WebRTC exposing (..)
+import Game exposing (..)
 
 main = Html.program
     { init = init
@@ -15,7 +16,7 @@ type alias Model =
     { input : String
     , messages : List String
     }
-
+    
 init : (Model, Cmd Msg)
 init = (Model "Hey!" [], Cmd.none)
 

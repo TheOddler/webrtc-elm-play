@@ -8256,6 +8256,11 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
+var _user$project$Game$Model = F2(
+	function (a, b) {
+		return {input: a, messages: b};
+	});
+
 var _user$project$WebRTC$send = _elm_lang$core$Native_Platform.outgoingPort(
 	'send',
 	function (v) {

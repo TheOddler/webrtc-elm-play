@@ -1,7 +1,10 @@
 port module WebRTC exposing (..)
 
--- Send a string to JS
-port send : String -> Cmd msg
+type alias WebRTCData = String
 
--- Basically listens to Strings send from JS to Elm
-port listen : (String -> msg) -> Sub msg
+-- Send data to js
+port send : WebRTCData -> Cmd msg
+
+-- Listens to data send from JS to Elm
+port listen : (WebRTCData -> msg) -> Sub msg
+
