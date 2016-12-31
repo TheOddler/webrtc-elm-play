@@ -1,0 +1,10 @@
+.chat {
+    background: rgba(50, 50, 150, .2);
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.chat ul, ol {
+    list-style-type: square;
+}

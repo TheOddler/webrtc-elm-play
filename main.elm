@@ -2,7 +2,7 @@ import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 import WebRTC exposing (..)
-import Game exposing (..)
+import Chat exposing (..)
 
 main = Html.program
     { init = init
@@ -11,40 +11,46 @@ main = Html.program
     , subscriptions = subscriptions
     }
 
+
 -- MODEL
 type alias Model = 
-    { input : String
-    , messages : List String
+    { chat : Chat.Model
     }
     
 init : (Model, Cmd Msg)
-init = (Model "Hey!" [], Cmd.none)
+init = (Model Chat.init, Cmd.none)
+
 
 -- UPDATE
-type Msg = Input String | Send | Received WebRTC.Message
+type Msg = Test | Received WebRTC.Message | ForChat Chat.Msg
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
-        Input message -> ({ model | input = message}, Cmd.none)
-        Send -> (model, WebRTC.send <| WebRTC.Message "chat" model.input)
+        Test -> (model, Cmd.none)
         Received message -> 
             case message.channel of
-                "chat" -> ({ model | messages = message.data :: model.messages}, Cmd.none)
+                "chat" -> 
+                    let 
+                        (chatModel, chatCmd) = Chat.update (Chat.Receive message.data) model.chat
+                    in 
+                        ({ model | chat = chatModel}, Cmd.map ForChat chatCmd)
                 _ -> (Debug.log ("Received message from unknown channel \"" ++ message.channel ++ "\"") model, Cmd.none)
+        ForChat msg ->
+            let 
+                (chatModel, chatCmd) = Chat.update msg model.chat
+            in  
+                ({ model | chat = chatModel}, Cmd.map ForChat chatCmd)
+        
 
 -- SUBSCRIPTIONS
 subscriptions : Model -> Sub Msg
 subscriptions model = WebRTC.listen Received
 
+
 -- VIEW 
 view : Model -> Html Msg
 view model =
     div []
-        [ input [placeholder "Message (default: Hey!)", onInput Input] []
-        , button [ onClick Send ] [ text "Send" ]
-        , div [] (List.map viewMessage model.messages)
+        [ Html.map ForChat (Chat.view model.chat)
         ]
-
-viewMessage msg =
-    div [] [ text msg ]

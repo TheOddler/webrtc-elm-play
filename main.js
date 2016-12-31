@@ -8256,11 +8256,6 @@ var _elm_lang$html$Html_Events$Options = F2(
 		return {stopPropagation: a, preventDefault: b};
 	});
 
-var _user$project$Game$Model = F2(
-	function (a, b) {
-		return {input: a, messages: b};
-	});
-
 var _user$project$WebRTC$send = _elm_lang$core$Native_Platform.outgoingPort(
 	'send',
 	function (v) {
@@ -8285,45 +8280,151 @@ var _user$project$WebRTC$Message = F2(
 		return {channel: a, data: b};
 	});
 
-var _user$project$Main$viewMessage = function (msg) {
+var _user$project$Chat$viewMessage = function (msg) {
 	return A2(
-		_elm_lang$html$Html$div,
-		{ctor: '[]'},
+		_elm_lang$html$Html$li,
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html$text(msg),
+			_0: _elm_lang$html$Html_Attributes$class('Message'),
 			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$span,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('User'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(msg.user),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$span,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('Text'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(msg.text),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
 		});
 };
-var _user$project$Main$update = F2(
+var _user$project$Chat$encodeMessage = function (msg) {
+	return A2(
+		_elm_lang$core$Json_Encode$encode,
+		0,
+		_elm_lang$core$Json_Encode$object(
+			{
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'user',
+					_1: _elm_lang$core$Json_Encode$string(msg.user)
+				},
+				_1: {
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'text',
+						_1: _elm_lang$core$Json_Encode$string(msg.text)
+					},
+					_1: {ctor: '[]'}
+				}
+			}));
+};
+var _user$project$Chat$Model = F3(
+	function (a, b, c) {
+		return {message: a, messages: b, debugCount: c};
+	});
+var _user$project$Chat$Message = F2(
+	function (a, b) {
+		return {user: a, text: b};
+	});
+var _user$project$Chat$init = A3(
+	_user$project$Chat$Model,
+	A2(_user$project$Chat$Message, '', ''),
+	{ctor: '[]'},
+	0);
+var _user$project$Chat$decodeMessage = _elm_lang$core$Json_Decode$decodeString(
+	A3(
+		_elm_lang$core$Json_Decode$map2,
+		_user$project$Chat$Message,
+		A2(_elm_lang$core$Json_Decode$field, 'user', _elm_lang$core$Json_Decode$string),
+		A2(_elm_lang$core$Json_Decode$field, 'text', _elm_lang$core$Json_Decode$string)));
+var _user$project$Chat$update = F2(
 	function (msg, model) {
 		var _p0 = msg;
 		switch (_p0.ctor) {
 			case 'Input':
+				var message = model.message;
+				var newMessage = _elm_lang$core$Native_Utils.update(
+					message,
+					{text: _p0._0});
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
-						{input: _p0._0}),
+						{message: newMessage}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			case 'Send':
+			case 'SendDebug':
 				return {
 					ctor: '_Tuple2',
-					_0: model,
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{debugCount: model.debugCount + 1}),
 					_1: _user$project$WebRTC$send(
-						A2(_user$project$WebRTC$Message, 'chat', model.input))
+						A2(
+							_user$project$WebRTC$Message,
+							'chat',
+							_user$project$Chat$encodeMessage(
+								A2(
+									_user$project$Chat$Message,
+									'Debug',
+									_elm_lang$core$Basics$toString(model.debugCount)))))
 				};
+			case 'Send':
+				if (_elm_lang$core$String$isEmpty(model.message.text)) {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				} else {
+					var message = model.message;
+					var newMessage = _elm_lang$core$Native_Utils.update(
+						message,
+						{text: ''});
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{message: newMessage}),
+						_1: _user$project$WebRTC$send(
+							A2(
+								_user$project$WebRTC$Message,
+								'chat',
+								_user$project$Chat$encodeMessage(message)))
+					};
+				}
 			default:
 				var _p2 = _p0._0;
-				var _p1 = _p2.channel;
-				if (_p1 === 'chat') {
+				var message = _user$project$Chat$decodeMessage(_p2);
+				var _p1 = message;
+				if (_p1.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								messages: {ctor: '::', _0: _p2.data, _1: model.messages}
+								messages: {ctor: '::', _0: _p1._0, _1: model.messages}
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -8334,36 +8435,187 @@ var _user$project$Main$update = F2(
 							_elm_lang$core$Debug$log,
 							A2(
 								_elm_lang$core$Basics_ops['++'],
-								'Received message from unknown channel \"',
-								A2(_elm_lang$core$Basics_ops['++'], _p1, '\"')),
+								'Received unreadable message on chat channel \"',
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									_p2,
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'\" with error \"',
+										A2(_elm_lang$core$Basics_ops['++'], _p1._0, '\"')))),
 							model),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
 		}
 	});
-var _user$project$Main$Model = F2(
-	function (a, b) {
-		return {input: a, messages: b};
-	});
-var _user$project$Main$init = {
-	ctor: '_Tuple2',
-	_0: A2(
-		_user$project$Main$Model,
-		'Hey!',
-		{ctor: '[]'}),
-	_1: _elm_lang$core$Platform_Cmd$none
+var _user$project$Chat$Receive = function (a) {
+	return {ctor: 'Receive', _0: a};
 };
-var _user$project$Main$Received = function (a) {
-	return {ctor: 'Received', _0: a};
+var _user$project$Chat$Send = function (a) {
+	return {ctor: 'Send', _0: a};
 };
-var _user$project$Main$subscriptions = function (model) {
-	return _user$project$WebRTC$listen(_user$project$Main$Received);
-};
-var _user$project$Main$Send = {ctor: 'Send'};
-var _user$project$Main$Input = function (a) {
+var _user$project$Chat$SendDebug = {ctor: 'SendDebug'};
+var _user$project$Chat$Input = function (a) {
 	return {ctor: 'Input', _0: a};
 };
+var _user$project$Chat$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('Chat'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$ol,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('Messages'),
+					_1: {ctor: '[]'}
+				},
+				A2(
+					_elm_lang$core$List$map,
+					_user$project$Chat$viewMessage,
+					_elm_lang$core$List$reverse(
+						A2(_elm_lang$core$List$take, 10, model.messages)))),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$input,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$placeholder('Message'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$value(model.message.text),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Events$onInput(_user$project$Chat$Input),
+								_1: {ctor: '[]'}
+							}
+						}
+					},
+					{ctor: '[]'}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$button,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$id('chat-send'),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$autofocus(true),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$disabled(
+										_elm_lang$core$String$isEmpty(model.message.text)),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html_Events$onClick(
+											_user$project$Chat$Send(model.message)),
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Send'),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$button,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$id('chat-send'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onClick(_user$project$Chat$SendDebug),
+									_1: {ctor: '[]'}
+								}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'Send ',
+										_elm_lang$core$Basics$toString(model.debugCount))),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		});
+};
+
+var _user$project$Main$Model = function (a) {
+	return {chat: a};
+};
+var _user$project$Main$init = {
+	ctor: '_Tuple2',
+	_0: _user$project$Main$Model(_user$project$Chat$init),
+	_1: _elm_lang$core$Platform_Cmd$none
+};
+var _user$project$Main$ForChat = function (a) {
+	return {ctor: 'ForChat', _0: a};
+};
+var _user$project$Main$update = F2(
+	function (msg, model) {
+		var _p0 = msg;
+		switch (_p0.ctor) {
+			case 'Test':
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'Received':
+				var _p3 = _p0._0;
+				var _p1 = _p3.channel;
+				if (_p1 === 'chat') {
+					var _p2 = A2(
+						_user$project$Chat$update,
+						_user$project$Chat$Receive(_p3.data),
+						model.chat);
+					var chatModel = _p2._0;
+					var chatCmd = _p2._1;
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{chat: chatModel}),
+						_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$ForChat, chatCmd)
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: A2(
+							_elm_lang$core$Debug$log,
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'Received message from unknown channel \"',
+								A2(_elm_lang$core$Basics_ops['++'], _p3.channel, '\"')),
+							model),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}
+			default:
+				var _p4 = A2(_user$project$Chat$update, _p0._0, model.chat);
+				var chatModel = _p4._0;
+				var chatCmd = _p4._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{chat: chatModel}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Main$ForChat, chatCmd)
+				};
+		}
+	});
 var _user$project$Main$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -8371,44 +8623,21 @@ var _user$project$Main$view = function (model) {
 		{
 			ctor: '::',
 			_0: A2(
-				_elm_lang$html$Html$input,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$placeholder('Message (default: Hey!)'),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onInput(_user$project$Main$Input),
-						_1: {ctor: '[]'}
-					}
-				},
-				{ctor: '[]'}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$button,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$Send),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text('Send'),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{ctor: '[]'},
-						A2(_elm_lang$core$List$map, _user$project$Main$viewMessage, model.messages)),
-					_1: {ctor: '[]'}
-				}
-			}
+				_elm_lang$html$Html$map,
+				_user$project$Main$ForChat,
+				_user$project$Chat$view(model.chat)),
+			_1: {ctor: '[]'}
 		});
+};
+var _user$project$Main$Received = function (a) {
+	return {ctor: 'Received', _0: a};
+};
+var _user$project$Main$subscriptions = function (model) {
+	return _user$project$WebRTC$listen(_user$project$Main$Received);
 };
 var _user$project$Main$main = _elm_lang$html$Html$program(
 	{init: _user$project$Main$init, view: _user$project$Main$view, update: _user$project$Main$update, subscriptions: _user$project$Main$subscriptions})();
+var _user$project$Main$Test = {ctor: 'Test'};
 
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
