@@ -31,7 +31,7 @@ update msg model =
         Received message -> 
             case message.channel of
                 "chat" -> ({ model | messages = message.data :: model.messages}, Cmd.none)
-                channel -> (Debug.log ("Received message from unknown channel \"" ++ channel ++ "\"") model, Cmd.none)
+                _ -> (Debug.log ("Received message from unknown channel \"" ++ message.channel ++ "\"") model, Cmd.none)
 
 -- SUBSCRIPTIONS
 subscriptions : Model -> Sub Msg
