@@ -6,37 +6,32 @@
     <body>
         <div id="main">
 
-		<script src="simplepeer.min.js"></script>
+		<script src="https://rtcmulticonnection.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
+        <script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
         <script src="main.js" type="text/javascript"></script>
-        <script src="webrtcconnect.js" type="text/javascript"></script>
         <script type="text/javascript">
             // Create elm
             var app = Elm.Main.embed(document.getElementById('main'))
 
-            // Login to parent (later signaling server) to see if you are initiator or not
-            parent.postMessage({type: "login", data:"..."}, "*")
+            // Create RTCMultiConnection
+            var connection = new RTCMultiConnection()
+            connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/'
+            connection.session = { audio: false, video: false, data: true }
 
-            var peer = null
-            function initialize(initiator) { //called directly by parent when both players logged in
-                // Create two simple peers and connect, for debugging on one page
-                peer = new SimplePeer({ initiator: initiator, trickle: false })
-                peer.on('signal', function (data) {
-                    parent.postMessage({type: "signal", data: data}, "*")
-                })
+            // Join testing room
+            //await sleep(Math.random() * 100);
+            var room = "Pablo's Testing Room"
+            connection.openOrJoin(room, function(roomExists, roomid) {
+                console.log(roomExists ? 'You joined room' : 'You created room');
+            })
 
-                // Connect Elm and WebRTC
-                var parent_ = parent
-                peer.on('data', function (data) {
-                    app.ports.listen.send("" + data)
-                })
-                app.ports.send.subscribe(function(message) {
-                    peer.send(message)
-                })
+            // Connect Elm and WebRTC
+            connection.onmessage = function (message) {
+                app.ports.listen.send(message.data)
             }
-
-            function signal(signal) { //called directly by parent
-                peer.signal(signal)
-            }
+            app.ports.send.subscribe(function(message) {
+                connection.send(message)
+            })
 		</script>
     </body>
 </html>

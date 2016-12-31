@@ -18,51 +18,5 @@
                 <p>Your browser does not support iframes.</p>
             </iframe>
         </div>
-
-        <script type="text/javascript">
-            var left = document.getElementById('left').contentWindow
-            var right = document.getElementById('right').contentWindow
-            console.log(left)
-
-            var initiator = null
-            var other = null
-
-            window.addEventListener('message',function(e) {
-                var key = e.message ? 'message' : 'data'
-                var message = e[key]
-                //console.log("Message received: ")
-                //console.log(message)
-                //console.log(e)
-
-                switch (message.type) {
-                    case "login":
-                        if (initiator == null) {
-                            initiator = e.source
-                        }
-                        else if (other == null){
-                            other = e.source
-                            // initialize both clients once they are both logged in
-                            other.initialize(false)
-                            initiator.initialize(true) // as initiator
-                        }
-                        else {
-                            console.log("Trying to connect third player, only exactly two are supported at the moment.")
-                        }
-                    break;
-                    case "signal":
-                        if (e.source == initiator) {
-                            other.signal(message.data)
-                        }
-                        else if (e.source == other) {
-                            initiator.signal(message.data)
-                        }
-                        else {
-                            console.log("Received signal from someone unknown.")
-                            console.log(message)
-                        }
-                    break;
-                }
-            },false);
-		</script>
     </body>
 </html>
