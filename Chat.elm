@@ -2,7 +2,7 @@ module Chat exposing (..)
 
 import Html exposing ( Html, div, span, text, input, button, ol, li )
 import Html.Events exposing (..)
-import Html.Attributes exposing (..)
+import Html.Attributes as A exposing ( class, id )
 import WebRTC exposing (..)
 import Json.Encode as E exposing ( encode, object )
 import Json.Decode as D exposing ( decodeString, map2, field )
@@ -80,21 +80,8 @@ update msg model =
 
 -- SUBSCRIPTIONS
 subscriptions : Model -> Sub Msg
-subscriptions model = WebRTC.listen forChatMessages
-
-forChatMessages : WebRTC.Message -> Msg
-forChatMessages webrtcMessage =
-    if webrtcMessage.channel == "chat"
-    then
-        let
-            message = decodeMessage webrtcMessage.data
-        in
-            case message of
-                Ok msg -> Receive msg
-                Err error -> Debug.log ("Received unreadable message on chat channel \"" ++ toString webrtcMessage.data ++ "\" with error \"" ++ error ++ "\"") Ignore
-    else
-        Ignore
-
+subscriptions model =
+    WebRTC.listen <| WebRTC.for "chat" decodeMessage Receive Ignore
 
 
 -- VIEW
@@ -102,11 +89,11 @@ view : Model -> Html Msg
 view model =
     div [ class "Chat" ]
         [ ol [ class "Messages" ] (List.map viewMessage <| List.reverse <| List.take 10 model.messages)
-        , input  [ placeholder "Message", value model.message.text, onInput Input ] []
+        , input  [ A.placeholder "Message", A.value model.message.text, onInput Input ] []
         , button 
             [ id "chat-send"
-            , autofocus True
-            , disabled (String.isEmpty model.message.text)
+            , A.autofocus True
+            , A.disabled (String.isEmpty model.message.text)
             , onClick <| Send model.message ] [ text "Send" ]
         , button 
             [ id "chat-send"
