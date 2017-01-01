@@ -56,7 +56,7 @@ update msg model =
         
         SendDebug ->
             ( {model | debugCount = model.debugCount + 1}
-            , WebRTC.send <| WebRTC.Message "chat" <| encodeMessage <| Message "Debug" (toString model.debugCount)
+            , WebRTC.sendOn "chat" encodeMessage <| Message "Debug" (toString model.debugCount)
             )
 
         Send msg -> 
@@ -69,7 +69,7 @@ update msg model =
                     newMessage = {message | text = ""}
                 in 
                     ( {model | message = newMessage}
-                    , WebRTC.send <| WebRTC.Message "chat" <| encodeMessage message
+                    , WebRTC.sendOn "chat" encodeMessage message
                     )
 
         Receive msg -> 
@@ -81,7 +81,7 @@ update msg model =
 -- SUBSCRIPTIONS
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    WebRTC.listenFor "chat" decodeMessage Receive Ignore
+    WebRTC.listenOn "chat" decodeMessage Receive Ignore
 
 
 -- VIEW

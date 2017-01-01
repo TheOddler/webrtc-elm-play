@@ -1,4 +1,4 @@
-port module WebRTC exposing (..)
+port module WebRTC exposing ( Message, send, sendOn, sendOnRaw, listen, listenOn, listenOnRaw )
 
 type alias ChannelId = String
 type alias Data = String
@@ -10,11 +10,27 @@ type alias Message =
 -- Send data to js
 port send : Message -> Cmd msg
 
+sendOnRaw : ChannelId -> Data -> Cmd msg
+sendOnRaw channel message =
+    send <| Message channel <| message
+
+sendOn : ChannelId -> (e -> Data) -> e -> Cmd msg
+sendOn channel encoder message =
+    sendOnRaw channel (encoder message)
+
 -- Listens to data send from JS to Elm
 port listen : (Message -> msg) -> Sub msg
 
-for : String -> (String -> Result String d) -> (d -> msg) -> msg -> Message -> msg
-for channel decoder good bad webrtcMessage =
+listenOn : ChannelId -> (Data -> Result String d) -> (d -> msg) -> msg -> Sub msg
+listenOn channel decoder good bad =
+    listen <| decodeAndListen_ channel decoder good bad
+
+listenOnRaw : ChannelId -> (Data -> msg) -> msg -> Sub msg
+listenOnRaw channel good bad =
+    listen <| basicListen_ channel good bad
+
+decodeAndListen_ : ChannelId -> (Data -> Result String d) -> (d -> msg) -> msg -> Message -> msg
+decodeAndListen_ channel decoder good bad webrtcMessage =
     if 
         webrtcMessage.channel == channel
     then
@@ -27,5 +43,11 @@ for channel decoder good bad webrtcMessage =
     else
         bad
 
-listenFor : String -> (String -> Result String d) -> (d -> a) -> a -> Sub a
-listenFor channel decoder good bad = listen <| for channel decoder good bad
+basicListen_ : ChannelId -> (Data -> msg) -> msg -> Message -> msg
+basicListen_ channel good bad webrtcMessage =
+    if 
+        webrtcMessage.channel == channel
+    then
+        good webrtcMessage.data
+    else
+        bad
