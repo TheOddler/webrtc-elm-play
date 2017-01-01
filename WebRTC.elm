@@ -26,3 +26,6 @@ for channel decoder good bad webrtcMessage =
                 Err error -> Debug.log ("Failed decoding message on " ++ channel ++ "channel \"" ++ toString webrtcMessage.data ++ "\" with error \"" ++ error ++ "\"") bad
     else
         bad
+
+listenFor : String -> (String -> Result String d) -> (d -> a) -> a -> Sub a
+listenFor channel decoder good bad = listen <| for channel decoder good bad

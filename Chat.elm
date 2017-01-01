@@ -81,7 +81,7 @@ update msg model =
 -- SUBSCRIPTIONS
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    WebRTC.listen <| WebRTC.for "chat" decodeMessage Receive Ignore
+    WebRTC.listenFor "chat" decodeMessage Receive Ignore
 
 
 -- VIEW
