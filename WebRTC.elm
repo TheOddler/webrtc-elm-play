@@ -1,4 +1,4 @@
-port module WebRTC exposing ( Message, send, sendOn, sendOnRaw, listen, listenOn, listenOnRaw )
+port module WebRTC exposing ( Message, send, sendOn, sendRawOn, listen, listenOn, listenRawOn )
 
 type alias ChannelId = String
 type alias Data = String
@@ -10,13 +10,13 @@ type alias Message =
 -- Send data to js
 port send : Message -> Cmd msg
 
-sendOnRaw : ChannelId -> Data -> Cmd msg
-sendOnRaw channel message =
+sendRawOn : ChannelId -> Data -> Cmd msg
+sendRawOn channel message =
     send <| Message channel <| message
 
 sendOn : ChannelId -> (e -> Data) -> e -> Cmd msg
 sendOn channel encoder message =
-    sendOnRaw channel (encoder message)
+    sendRawOn channel (encoder message)
 
 -- Listens to data send from JS to Elm
 port listen : (Message -> msg) -> Sub msg
@@ -25,8 +25,8 @@ listenOn : ChannelId -> (Data -> Result String d) -> (d -> msg) -> msg -> Sub ms
 listenOn channel decoder good bad =
     listen <| decodeAndListen_ channel decoder good bad
 
-listenOnRaw : ChannelId -> (Data -> msg) -> msg -> Sub msg
-listenOnRaw channel good bad =
+listenRawOn : ChannelId -> (Data -> msg) -> msg -> Sub msg
+listenRawOn channel good bad =
     listen <| basicListen_ channel good bad
 
 decodeAndListen_ : ChannelId -> (Data -> Result String d) -> (d -> msg) -> msg -> Message -> msg
