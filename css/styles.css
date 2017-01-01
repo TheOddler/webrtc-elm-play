@@ -3,8 +3,21 @@
     position: absolute;
     bottom: 0;
     right: 0;
+    border: 2px outset rgb(50, 50, 150);;
 }
 
 .chat ul, ol {
-    list-style-type: square;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+.chat ul, ol li:nth-child(even) { 
+    background: rgba(0, 0, 0, .15);
+}
+
+.chat .message {
+    padding: 0 5;
+}
+.chat .message .user:after {
+    content: ": ";
 }
