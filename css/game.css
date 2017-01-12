@@ -1,0 +1,32 @@
+.game .board {
+    border: 2px outset rgb(120, 80, 40);
+    background-color: rgb(255, 240, 230);
+    width: 80vmin;
+    padding: 0.5vmin;
+}
+.game .row {
+    display: flex;
+    flex: 0;
+}
+.game .cell {
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+    height: 10vmin;
+    width: 10vmin;
+}
+.game .cell:hover {
+    box-shadow: 0 0 5px rgba(200, 50, 50, 1);
+}
+.game .cell .piece {
+    font-size: 10vmin;
+    margin: 1vmin;
+    cursor: pointer;
+}
+
+.game .dark {
+    background-color: rgba(140, 70, 20, 0.3);
+}
+
+.game .select {
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+    background-color: rgba(140, 40, 10, 0.3);
+}
