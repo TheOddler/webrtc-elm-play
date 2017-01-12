@@ -3,7 +3,7 @@ import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 import WebRTC exposing (..)
 import Chat exposing (..)
-import Game exposing (..)
+import Chess.Game as Game exposing (..) 
 
 main = Html.program
     { init = init
