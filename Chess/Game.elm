@@ -12,13 +12,13 @@ import Chess.Piece as Piece exposing (..)
 type Square = Empty | Contains Piece
 
 type alias Board = List (List Square)
-type alias Selection =
+type alias Position =
     { row : Int
     , col : Int
     }
 type alias Model = 
     { board : Board
-    , selected : Selection
+    , selection : Position
     , dead : List Piece
     }
 
@@ -46,20 +46,20 @@ initBoard =
     ]
 
 init : Model
-init = Model initBoard (Selection -1 -1) []
+init = Model initBoard (Position -1 -1) []
 
 
 -- UPDATE
 type Msg 
     = Ignore
-    | Select Selection
+    | Click Position
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         Ignore -> (model, Cmd.none)
         
-        Select sel -> ({ model | selected = sel}, Cmd.none)
+        Click pos -> ({ model | selection = pos}, Cmd.none)
 
 
 -- SUBSCRIPTIONS
@@ -70,25 +70,25 @@ subscriptions model = Sub.none
 -- VIEW
 view : Model -> Html Msg
 view model =
-    div [ class "Game" ] [ viewBoard model.selected model.board ]
+    div [ class "Game" ] [ viewBoard model.selection model.board ]
 
-viewBoard : Selection -> Board -> Html Msg
-viewBoard sel board = 
+viewBoard : Position -> Board -> Html Msg
+viewBoard selection board = 
     table [ class "Board" ]
-        <| List.indexedMap (viewBoardRow sel) board
+        <| List.indexedMap (viewBoardRow selection) board
 
-viewBoardRow : Selection -> Int -> List Square -> Html Msg
-viewBoardRow sel rowIndex squares =
+viewBoardRow : Position -> Int -> List Square -> Html Msg
+viewBoardRow selection rowIndex squares =
     tr [ class "row" ] 
-        <| List.indexedMap (viewBoardSquare sel rowIndex) squares
+        <| List.indexedMap (viewBoardSquare selection rowIndex) squares
 
-viewBoardSquare : Selection -> Int -> Int -> Square -> Html Msg
-viewBoardSquare sel rowIndex colIndex sq =
+viewBoardSquare : Position -> Int -> Int -> Square -> Html Msg
+viewBoardSquare selection rowIndex colIndex sq =
     let 
-        a = if (rowIndex + colIndex) % 2 == 1 then "dark" else "light"
-        s = if sel.row == rowIndex && sel.col == colIndex then " selected" else ""
-        c = a ++ s ++ " cell"
+        c = if (rowIndex + colIndex) % 2 == 1 then "dark" else "light"
+        s = if selection.row == rowIndex && selection.col == colIndex then " selected" else ""
+        attr = [ class <| c ++ s ++ " cell", onClick <| Click <| Position rowIndex colIndex ]
     in
         case sq of
-            Empty -> td [ class c ] []
-            Contains piece -> td [ class c, onClick <| Select <| Selection rowIndex colIndex ] [ Piece.view piece ]
+            Empty -> td attr []
+            Contains piece -> td attr [ Piece.view piece ]

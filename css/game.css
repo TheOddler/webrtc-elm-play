@@ -28,7 +28,6 @@
 
 .game .selected {
     box-shadow: 0 0 5px rgba(50, 50, 200, 1);
-    background-color: rgba(140, 40, 10, 0.3);
 }
 
 .game .legalMove {
