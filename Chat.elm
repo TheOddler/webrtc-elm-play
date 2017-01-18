@@ -35,6 +35,9 @@ decodeMessage =
 
 
 -- UPDATE
+type Config msg = Config
+    { modifyMsg : (Msg -> msg)
+    }
 type Msg 
     = Ignore
     | Input String 
@@ -42,7 +45,7 @@ type Msg
     | Send Message 
     | Receive Message
 
-update : Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> Model -> (Model, Cmd msg)
 update msg model =
     case msg of
         Ignore -> (model, Cmd.none)
@@ -79,28 +82,30 @@ update msg model =
 
 
 -- SUBSCRIPTIONS
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    WebRTC.listenOn "chat" decodeMessage Receive Ignore
+subscriptions : Config msg -> Model -> Sub msg
+subscriptions (Config { modifyMsg }) model =
+    Sub.map modifyMsg <| WebRTC.listenOn "chat" decodeMessage Receive Ignore
 
 
 -- VIEW
-view : Model -> Html Msg
-view model =
+view : Config msg -> Model -> Html msg
+view (Config { modifyMsg }) model =
     div [ class "Chat" ]
         [ ol [ class "Messages" ] (List.map viewMessage <| List.reverse <| List.take 10 model.messages)
-        , input  [ A.placeholder "Message", A.value model.message.text, onInput Input ] []
+        , input  [ A.placeholder "Message", A.value model.message.text, onInput (\i -> modifyMsg <| Input i) ] []
         , button 
             [ id "chat-send"
             , A.autofocus True
             , A.disabled (String.isEmpty model.message.text)
-            , onClick <| Send model.message ] [ text "Send" ]
+            , onClick <| modifyMsg <| Send model.message
+            ] [ text "Send" ]
         , button 
             [ id "chat-send"
-            , onClick <| SendDebug ] [ text ("Send " ++ toString model.debugCount) ]
+            , onClick <| modifyMsg SendDebug
+            ] [ text ("Send " ++ toString model.debugCount) ]
         ]
 
-viewMessage : Message -> Html Msg
+viewMessage : Message -> Html msg
 viewMessage msg =
     li  [ class "Message" ] 
         [ span [ class "User" ] [ text msg.user ]

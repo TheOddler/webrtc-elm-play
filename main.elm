@@ -22,6 +22,10 @@ type alias Model =
 init : (Model, Cmd Msg)
 init = (Model Chat.init Game.init, Cmd.none)
 
+chatConfig : Chat.Config Msg
+chatConfig = Chat.Config
+    { modifyMsg = ForChat
+    }
 
 -- UPDATE
 type Msg 
@@ -45,7 +49,7 @@ update msg model =
             let 
                 (chatModel, chatCmd) = Chat.update msg model.chat
             in  
-                ({ model | chat = chatModel}, Cmd.map ForChat chatCmd)
+                ({ model | chat = chatModel}, chatCmd)
         ForGame msg ->
             let 
                 (gameModel, gameCmd) = Game.update msg model.game
@@ -58,7 +62,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model = 
     Sub.batch 
         [ WebRTC.listen Received
-        , Sub.map ForChat <| Chat.subscriptions model.chat
+        , Chat.subscriptions chatConfig model.chat
         , Sub.map ForGame <| Game.subscriptions model.game
         ]
 
@@ -67,6 +71,6 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div []
-        [ Html.map ForChat (Chat.view model.chat)
+        [ Chat.view chatConfig model.chat
         , Html.map ForGame (Game.view model.game)
         ]
