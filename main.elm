@@ -53,7 +53,7 @@ update msg model =
                 (gameModel, gameCmd) = Game.update msg model.game
             in  
                 ({ model | game = gameModel}, Cmd.map ForGame gameCmd)
-        
+
 
 -- SUBSCRIPTIONS
 subscriptions : Model -> Sub Msg

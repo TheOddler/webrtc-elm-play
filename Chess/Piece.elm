@@ -11,8 +11,8 @@ type alias Piece =
     , figure : PieceType
     }
 
-view : Piece -> Html msg
-view piece =
+toDiv : Piece -> Html msg
+toDiv piece =
     div [ class "piece" ] [ text <| toText piece ]
 
 toText : Piece -> String
