@@ -2,7 +2,7 @@
     background: rgba(50, 50, 150, .2);
     position: absolute;
     bottom: 0;
-    right: 0;
+    left: 0;
     border: 2px outset rgb(50, 50, 150);;
 }
 

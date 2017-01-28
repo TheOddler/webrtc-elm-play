@@ -1,1 +1,1 @@
-elm-make main.elm --output=main.js --debug
+elm-live main.elm --output=main.js --debug --open

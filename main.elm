@@ -1,8 +1,8 @@
 import Html exposing (..)
-import Html.Events exposing (..)
-import Html.Attributes exposing (..)
 import WebRTC exposing (..)
-import Chat exposing (..)
+import Chat.Model exposing (..)
+import Chat.View exposing (..)
+import Chat.Update exposing (..)
 import Chess.Game as Game exposing (..) 
 
 main = Html.program
@@ -15,23 +15,21 @@ main = Html.program
 
 -- MODEL
 type alias Model = 
-    { chat : Chat.Model
+    { chat : Chat.Model.Model
     , game : Game.Model
     }
     
 init : (Model, Cmd Msg)
-init = (Model Chat.init Game.init, Cmd.none)
+init = (Model Chat.Model.init Game.init, Cmd.none)
 
-chatConfig : Chat.Config Msg
-chatConfig = Chat.Config
-    { modifyMsg = ForChat
-    }
+chatConfig : Chat.View.Config Msg
+chatConfig = Chat.Update.createConfig ForChat
 
 -- UPDATE
 type Msg 
     = Test 
     | Received WebRTC.Message 
-    | ForChat Chat.Msg 
+    | ForChat Chat.Update.Msg 
     | ForGame Game.Msg
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -47,7 +45,7 @@ update msg model =
                 )
         ForChat msg ->
             let 
-                (chatModel, chatCmd) = Chat.update msg model.chat
+                (chatModel, chatCmd) = Chat.Update.update msg model.chat
             in  
                 ({ model | chat = chatModel}, chatCmd)
         ForGame msg ->
@@ -62,7 +60,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model = 
     Sub.batch 
         [ WebRTC.listen Received
-        , Chat.subscriptions chatConfig model.chat
+        , Chat.Update.subscriptions ForChat model.chat
         , Sub.map ForGame <| Game.subscriptions model.game
         ]
 
@@ -71,6 +69,6 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div []
-        [ Chat.view chatConfig model.chat
+        [ Chat.View.view chatConfig model.chat
         , Html.map ForGame (Game.view model.game)
         ]
