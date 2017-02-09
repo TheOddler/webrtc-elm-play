@@ -1,0 +1,33 @@
+.chess .board .back {
+    fill: rgb(240, 220, 210);
+}
+.chess .board .dark {
+    fill: rgba(140, 70, 20, 0.3);
+}
+
+.chess .cell:hover {
+    box-shadow: inset 0 0 5px rgba(200, 50, 50, 1);
+}
+.chess .cell.selected {
+    box-shadow: 0 0 5px rgba(50, 50, 200, 1);
+}
+.chess .cell.selected:hover {
+    box-shadow: 0 0 5px rgba(50, 50, 200, 1), inset 0 0 5px rgba(200, 50, 50, 1);
+}
+.chess .cell.move {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 1);
+}
+
+.chess .legalMove {
+    box-shadow: inset 0 0 5px rgba(50, 200, 50, 1);
+    background-color: rgba(140, 40, 10, 0.3);
+}
+
+.chess .dead {
+    margin: 0;
+    padding: 0;
+}
+.chess .dead li {
+    font-size: 6vmin;
+    display: inline-block;
+}

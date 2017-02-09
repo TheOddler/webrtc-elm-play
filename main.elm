@@ -1,9 +1,14 @@
 import Html exposing (..)
 import WebRTC exposing (..)
+
 import Chat.Model exposing (..)
 import Chat.View exposing (..)
 import Chat.Update exposing (..)
-import Chess.Game as Game exposing (..) 
+
+import Chess.Model exposing (..)
+import Chess.View exposing (..)
+import Chess.Update exposing (..)
+
 
 main = Html.program
     { init = init
@@ -16,21 +21,25 @@ main = Html.program
 -- MODEL
 type alias Model = 
     { chat : Chat.Model.Model
-    , game : Game.Model
+    , game : Chess.Model.Model
     }
     
 init : (Model, Cmd Msg)
-init = (Model Chat.Model.init Game.init, Cmd.none)
+init = (Model Chat.Model.init Chess.Model.init, Cmd.none)
 
 chatConfig : Chat.View.Config Msg
 chatConfig = Chat.Update.createConfig ForChat
+
+chessConfig : Chess.View.Config Msg
+chessConfig = Chess.Update.createConfig ForGame
+
 
 -- UPDATE
 type Msg 
     = Test 
     | Received WebRTC.Message 
     | ForChat Chat.Update.Msg 
-    | ForGame Game.Msg
+    | ForGame Chess.Update.Msg
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -44,15 +53,15 @@ update msg model =
                 , Cmd.none
                 )
         ForChat msg ->
-            let 
+            let
                 (chatModel, chatCmd) = Chat.Update.update msg model.chat
             in  
                 ({ model | chat = chatModel}, chatCmd)
         ForGame msg ->
             let 
-                (gameModel, gameCmd) = Game.update msg model.game
+                (gameModel, gameCmd) = Chess.Update.update msg model.game
             in  
-                ({ model | game = gameModel}, Cmd.map ForGame gameCmd)
+                ({ model | game = gameModel}, gameCmd)
 
 
 -- SUBSCRIPTIONS
@@ -61,7 +70,7 @@ subscriptions model =
     Sub.batch 
         [ WebRTC.listen Received
         , Chat.Update.subscriptions ForChat model.chat
-        , Sub.map ForGame <| Game.subscriptions model.game
+        , Chess.Update.subscriptions ForGame model.game
         ]
 
 
@@ -70,5 +79,5 @@ view : Model -> Html Msg
 view model =
     div []
         [ Chat.View.view chatConfig model.chat
-        , Html.map ForGame (Game.view model.game)
+        , Chess.View.view chessConfig model.game
         ]
