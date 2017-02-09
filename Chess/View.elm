@@ -16,9 +16,13 @@ type Config msg = Config
 
 view : Config msg -> Model -> Html msg
 view (Config config) model =
-    svg
-      [ class "chess", width "256", height "256", viewBox "0 0 256 256" ]
-      [ viewBoard 256, viewPieces 256 model.pieces ]
+    let 
+        size = 300
+        sizeText = toString size
+    in
+        svg
+        [ class "chess", width sizeText, height sizeText, viewBox <| "0 0 " ++ sizeText ++ " " ++ sizeText ]
+        [ viewBoard size, viewPieces size model.pieces, text "Your browser doesn't support svg :(" ]
 
 viewPieces : Int -> Dict Position Piece -> Svg msg
 viewPieces size pieces =
@@ -28,10 +32,14 @@ viewPieces size pieces =
 viewPiece : Float -> (Position, Piece) -> Svg msg
 viewPiece size ((row, col), piece) = 
     let
-        (xPos, yPos) = toCoordinatesString size row col
+        (baseX, baseY) = toCoordinates size row col
+        xPos = toString <| baseX + size / 2
+        yPos = toString <| baseY + size - size / 10
         s = toString size
     in 
-        rect [ class "piece", x xPos, y yPos, width s, height s, rx s, ry s ] []
+        text_ [ class "piece", x xPos, y yPos, fontSize s, textAnchor "middle" ]
+            [ text <| Piece.toText piece
+            ]
 
 viewBoard : Int -> Svg msg
 viewBoard size =
@@ -54,13 +62,13 @@ viewBoard size =
 viewDarkCell : Float -> Int -> Int -> Svg msg
 viewDarkCell size row col =
     let
-        (xPos, yPos) = toCoordinatesString size row col
+        (xPos, yPos) = toCoordinates size row col
     in
         rect 
             [ class "dark"
-            , x xPos, y yPos
+            , x <| toString xPos, y <| toString yPos
             , width <| toString size, height <| toString size 
             ] []
 
-toCoordinatesString : Float -> Int -> Int -> (String, String)
-toCoordinatesString size row col = (toString <| toFloat col * size, toString <| 7 * size - toFloat row * size)
+toCoordinates : Float -> Int -> Int -> (Float, Float)
+toCoordinates size row col = (toFloat col * size, 7 * size - toFloat row * size)
