@@ -5,6 +5,10 @@
     fill: rgba(140, 70, 20, 0.3);
 }
 
+.cheass .piece {
+    fill: rgb(0, 0, 0);
+}
+
 .chess .cell:hover {
     box-shadow: inset 0 0 5px rgba(200, 50, 50, 1);
 }
