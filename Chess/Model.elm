@@ -8,7 +8,7 @@ import Json.Decode as D exposing ( decodeString, map2, field )
 import Chess.Piece as Piece exposing (..)
 
 -- MODEL
-type alias Position = (Int, Int) --Row, Column
+type alias Position = (Int, Int) --Row, Column (tuple rather than object for comparable)
 
 type GameState 
     = Waiting
