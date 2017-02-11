@@ -1,6 +1,6 @@
 module Chess.View exposing (..)
 
-import Html exposing ( Html )
+import Html exposing ( Html, div, ul, li )
 import Dict exposing (Dict, toList)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -20,9 +20,15 @@ view (Config config) model =
         size = 300
         sizeText = toString size
     in
-        svg
-        [ class "chess", width sizeText, height sizeText, viewBox <| "0 0 " ++ sizeText ++ " " ++ sizeText ]
-        [ viewBoard size, viewPieces size model.pieces, text "Your browser doesn't support svg :(" ]
+        div [class "chess"]
+            [ svg
+                [ width sizeText, height sizeText, viewBox <| "0 0 " ++ sizeText ++ " " ++ sizeText ]
+                [ viewBoard size
+                , viewPieces size model.pieces
+                , text "Your browser doesn't support svg :("
+                ]
+            , viewGraveyard size model.graveyard
+            ]
 
 viewPieces : Int -> Dict Position Piece -> Svg msg
 viewPieces size pieces =
@@ -37,9 +43,12 @@ viewPiece size ((row, col), piece) =
         yPos = toString <| baseY + size - size / 10
         s = toString size
     in 
-        text_ [ class "piece", x xPos, y yPos, fontSize s, textAnchor "middle" ]
-            [ text <| Piece.toText piece
-            ]
+        text_ [ class "piece", x xPos, y yPos, fontSize s, textAnchor "middle" ] [ text <| Piece.toText piece ]
+
+viewGraveyard : Float -> List Piece -> Html msg
+viewGraveyard size graveyard =
+    ul  [ class "graveyard" ]
+        <| List.map (\p -> li [] [ text <| Piece.toText p ] ) graveyard
 
 viewBoard : Int -> Svg msg
 viewBoard size =
