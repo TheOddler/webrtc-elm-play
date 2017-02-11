@@ -7,6 +7,9 @@
 .chess .board .dark {
     fill: rgba(140, 70, 20, 0.3);
 }
+.chess .board .light {
+    fill: rgba(140, 70, 20, 0);
+}
 .chess .piece {
     cursor: pointer;
 }
