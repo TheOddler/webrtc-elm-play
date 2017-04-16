@@ -9,11 +9,13 @@ import Chess.Model exposing (..)
 import Chess.View exposing (..)
 import Chess.Update exposing (..)
 
+import AutoSync exposing (..)
+
 
 main = Html.program
     { init = init
     , view = view
-    , update = update
+    , update = updateSynced
     , subscriptions = subscriptions
     }
 
@@ -40,6 +42,13 @@ type Msg
     | Received WebRTC.Message 
     | ForChat Chat.Update.Msg 
     | ForGame Chess.Update.Msg
+
+updateSynced : Msg -> Model -> (Model, Cmd Msg)
+updateSynced msg model =
+    let
+        (newModel, cmd) = update msg model
+    in
+        (AutoSync.autoSync newModel, cmd)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =

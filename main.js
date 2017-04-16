@@ -12757,6 +12757,59 @@ var _elm_lang$svg$Svg_Attributes$accumulate = _elm_lang$virtual_dom$VirtualDom$a
 var _elm_lang$svg$Svg_Attributes$accelerate = _elm_lang$virtual_dom$VirtualDom$attribute('accelerate');
 var _elm_lang$svg$Svg_Attributes$accentHeight = _elm_lang$virtual_dom$VirtualDom$attribute('accent-height');
 
+var _elm_lang$svg$Svg_Events$on = _elm_lang$virtual_dom$VirtualDom$on;
+var _elm_lang$svg$Svg_Events$simpleOn = F2(
+	function (name, msg) {
+		return A2(
+			_elm_lang$svg$Svg_Events$on,
+			name,
+			_elm_lang$core$Json_Decode$succeed(msg));
+	});
+var _elm_lang$svg$Svg_Events$onBegin = _elm_lang$svg$Svg_Events$simpleOn('begin');
+var _elm_lang$svg$Svg_Events$onEnd = _elm_lang$svg$Svg_Events$simpleOn('end');
+var _elm_lang$svg$Svg_Events$onRepeat = _elm_lang$svg$Svg_Events$simpleOn('repeat');
+var _elm_lang$svg$Svg_Events$onAbort = _elm_lang$svg$Svg_Events$simpleOn('abort');
+var _elm_lang$svg$Svg_Events$onError = _elm_lang$svg$Svg_Events$simpleOn('error');
+var _elm_lang$svg$Svg_Events$onResize = _elm_lang$svg$Svg_Events$simpleOn('resize');
+var _elm_lang$svg$Svg_Events$onScroll = _elm_lang$svg$Svg_Events$simpleOn('scroll');
+var _elm_lang$svg$Svg_Events$onLoad = _elm_lang$svg$Svg_Events$simpleOn('load');
+var _elm_lang$svg$Svg_Events$onUnload = _elm_lang$svg$Svg_Events$simpleOn('unload');
+var _elm_lang$svg$Svg_Events$onZoom = _elm_lang$svg$Svg_Events$simpleOn('zoom');
+var _elm_lang$svg$Svg_Events$onActivate = _elm_lang$svg$Svg_Events$simpleOn('activate');
+var _elm_lang$svg$Svg_Events$onClick = _elm_lang$svg$Svg_Events$simpleOn('click');
+var _elm_lang$svg$Svg_Events$onFocusIn = _elm_lang$svg$Svg_Events$simpleOn('focusin');
+var _elm_lang$svg$Svg_Events$onFocusOut = _elm_lang$svg$Svg_Events$simpleOn('focusout');
+var _elm_lang$svg$Svg_Events$onMouseDown = _elm_lang$svg$Svg_Events$simpleOn('mousedown');
+var _elm_lang$svg$Svg_Events$onMouseMove = _elm_lang$svg$Svg_Events$simpleOn('mousemove');
+var _elm_lang$svg$Svg_Events$onMouseOut = _elm_lang$svg$Svg_Events$simpleOn('mouseout');
+var _elm_lang$svg$Svg_Events$onMouseOver = _elm_lang$svg$Svg_Events$simpleOn('mouseover');
+var _elm_lang$svg$Svg_Events$onMouseUp = _elm_lang$svg$Svg_Events$simpleOn('mouseup');
+
+// https://elmseeds.thaterikperson.com/native-modules
+
+var _user$project$Native_AutoSync = function() {
+
+    // Native functions
+    function addOne(a) {
+        return a + 1;
+    };
+
+    function autoSync(model) {
+        console.log(model);
+        return model;
+    }
+
+    return {
+        //setItem: F2(setItem)
+        addOne: addOne,
+        autoSync: autoSync
+    }
+
+}();
+
+var _user$project$AutoSync$autoSync = _user$project$Native_AutoSync.autoSync;
+var _user$project$AutoSync$addOne = _user$project$Native_AutoSync.addOne;
+
 var _user$project$Chat_Model$encodeMessage = function (msg) {
 	return A2(
 		_elm_lang$core$Json_Encode$encode,
@@ -13155,21 +13208,6 @@ var _user$project$Chess_Piece$toText = function (piece) {
 		}
 	}
 };
-var _user$project$Chess_Piece$toDiv = function (piece) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('piece'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html$text(
-				_user$project$Chess_Piece$toText(piece)),
-			_1: {ctor: '[]'}
-		});
-};
 var _user$project$Chess_Piece$Piece = F2(
 	function (a, b) {
 		return {color: a, figure: b};
@@ -13294,33 +13332,64 @@ var _user$project$Chess_View$toCoordinates = F3(
 			_1: (7 * size) - (_elm_lang$core$Basics$toFloat(row) * size)
 		};
 	});
-var _user$project$Chess_View$viewDarkCell = F3(
-	function (size, row, col) {
-		var _p0 = A3(_user$project$Chess_View$toCoordinates, size, row, col);
-		var xPos = _p0._0;
-		var yPos = _p0._1;
+var _user$project$Chess_View$viewGraveyard = F2(
+	function (size, graveyard) {
+		return A2(
+			_elm_lang$html$Html$ul,
+			{
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$class('graveyard'),
+				_1: {ctor: '[]'}
+			},
+			A2(
+				_elm_lang$core$List$map,
+				function (p) {
+					return A2(
+						_elm_lang$html$Html$li,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _elm_lang$svg$Svg$text(
+								_user$project$Chess_Piece$toText(p)),
+							_1: {ctor: '[]'}
+						});
+				},
+				graveyard));
+	});
+var _user$project$Chess_View$viewCell = F5(
+	function (_p0, size, class_, row, col) {
+		var _p1 = _p0;
+		var _p2 = A3(_user$project$Chess_View$toCoordinates, size, row, col);
+		var xPos = _p2._0;
+		var yPos = _p2._1;
 		return A2(
 			_elm_lang$svg$Svg$rect,
 			{
 				ctor: '::',
-				_0: _elm_lang$svg$Svg_Attributes$class('dark'),
+				_0: _elm_lang$svg$Svg_Attributes$class(class_),
 				_1: {
 					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$x(
-						_elm_lang$core$Basics$toString(xPos)),
+					_0: _elm_lang$svg$Svg_Events$onClick(
+						_p1._0.click(
+							{ctor: '_Tuple2', _0: row, _1: col})),
 					_1: {
 						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$y(
-							_elm_lang$core$Basics$toString(yPos)),
+						_0: _elm_lang$svg$Svg_Attributes$x(
+							_elm_lang$core$Basics$toString(xPos)),
 						_1: {
 							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$width(
-								_elm_lang$core$Basics$toString(size)),
+							_0: _elm_lang$svg$Svg_Attributes$y(
+								_elm_lang$core$Basics$toString(yPos)),
 							_1: {
 								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$height(
+								_0: _elm_lang$svg$Svg_Attributes$width(
 									_elm_lang$core$Basics$toString(size)),
-								_1: {ctor: '[]'}
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Attributes$height(
+										_elm_lang$core$Basics$toString(size)),
+									_1: {ctor: '[]'}
+								}
 							}
 						}
 					}
@@ -13328,182 +13397,129 @@ var _user$project$Chess_View$viewDarkCell = F3(
 			},
 			{ctor: '[]'});
 	});
-var _user$project$Chess_View$viewBoard = function (size) {
-	var s = _elm_lang$core$Basics$toString(size);
-	var vdc = _user$project$Chess_View$viewDarkCell(
-		_elm_lang$core$Basics$toFloat(size) / 8);
-	return A3(
-		_elm_lang$svg$Svg$node,
-		'svg',
-		{
-			ctor: '::',
-			_0: _elm_lang$svg$Svg_Attributes$class('board'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$svg$Svg$rect,
+var _user$project$Chess_View$viewBoard = F2(
+	function (config, size) {
+		var s = _elm_lang$core$Basics$toString(size);
+		var cols = A2(_elm_lang$core$List$range, 0, 7);
+		var vc = A2(
+			_user$project$Chess_View$viewCell,
+			config,
+			_elm_lang$core$Basics$toFloat(size) / 8);
+		var even = F2(
+			function (row, col) {
+				return A3(
+					vc,
+					_elm_lang$core$Native_Utils.eq(
+						A2(_elm_lang$core$Basics_ops['%'], col, 2),
+						0) ? 'dark cell' : 'light cell',
+					row,
+					col);
+			});
+		var odd = F2(
+			function (row, col) {
+				return A3(
+					vc,
+					_elm_lang$core$Native_Utils.eq(
+						A2(_elm_lang$core$Basics_ops['%'], col, 2),
+						1) ? 'dark cell' : 'light cell',
+					row,
+					col);
+			});
+		return A3(
+			_elm_lang$svg$Svg$node,
+			'svg',
+			{
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$class('board'),
+				_1: {ctor: '[]'}
+			},
+			A2(
+				_elm_lang$core$Basics_ops['++'],
 				{
 					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$class('back'),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$x('0'),
-						_1: {
+					_0: A2(
+						_elm_lang$svg$Svg$rect,
+						{
 							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$y('0'),
+							_0: _elm_lang$svg$Svg_Attributes$class('back'),
 							_1: {
 								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$width(s),
+								_0: _elm_lang$svg$Svg_Attributes$x('0'),
 								_1: {
 									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$height(s),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					}
-				},
-				{ctor: '[]'}),
-			_1: {
-				ctor: '::',
-				_0: A2(vdc, 7, 1),
-				_1: {
-					ctor: '::',
-					_0: A2(vdc, 7, 3),
-					_1: {
-						ctor: '::',
-						_0: A2(vdc, 7, 5),
-						_1: {
-							ctor: '::',
-							_0: A2(vdc, 7, 7),
-							_1: {
-								ctor: '::',
-								_0: A2(vdc, 6, 0),
-								_1: {
-									ctor: '::',
-									_0: A2(vdc, 6, 2),
+									_0: _elm_lang$svg$Svg_Attributes$y('0'),
 									_1: {
 										ctor: '::',
-										_0: A2(vdc, 6, 4),
+										_0: _elm_lang$svg$Svg_Attributes$width(s),
 										_1: {
 											ctor: '::',
-											_0: A2(vdc, 6, 6),
-											_1: {
-												ctor: '::',
-												_0: A2(vdc, 5, 1),
-												_1: {
-													ctor: '::',
-													_0: A2(vdc, 5, 3),
-													_1: {
-														ctor: '::',
-														_0: A2(vdc, 5, 5),
-														_1: {
-															ctor: '::',
-															_0: A2(vdc, 5, 7),
-															_1: {
-																ctor: '::',
-																_0: A2(vdc, 4, 0),
-																_1: {
-																	ctor: '::',
-																	_0: A2(vdc, 4, 2),
-																	_1: {
-																		ctor: '::',
-																		_0: A2(vdc, 4, 4),
-																		_1: {
-																			ctor: '::',
-																			_0: A2(vdc, 4, 6),
-																			_1: {
-																				ctor: '::',
-																				_0: A2(vdc, 3, 1),
-																				_1: {
-																					ctor: '::',
-																					_0: A2(vdc, 3, 3),
-																					_1: {
-																						ctor: '::',
-																						_0: A2(vdc, 3, 5),
-																						_1: {
-																							ctor: '::',
-																							_0: A2(vdc, 3, 7),
-																							_1: {
-																								ctor: '::',
-																								_0: A2(vdc, 2, 0),
-																								_1: {
-																									ctor: '::',
-																									_0: A2(vdc, 2, 2),
-																									_1: {
-																										ctor: '::',
-																										_0: A2(vdc, 2, 4),
-																										_1: {
-																											ctor: '::',
-																											_0: A2(vdc, 2, 6),
-																											_1: {
-																												ctor: '::',
-																												_0: A2(vdc, 1, 1),
-																												_1: {
-																													ctor: '::',
-																													_0: A2(vdc, 1, 3),
-																													_1: {
-																														ctor: '::',
-																														_0: A2(vdc, 1, 5),
-																														_1: {
-																															ctor: '::',
-																															_0: A2(vdc, 1, 7),
-																															_1: {
-																																ctor: '::',
-																																_0: A2(vdc, 0, 0),
-																																_1: {
-																																	ctor: '::',
-																																	_0: A2(vdc, 0, 2),
-																																	_1: {
-																																		ctor: '::',
-																																		_0: A2(vdc, 0, 4),
-																																		_1: {
-																																			ctor: '::',
-																																			_0: A2(vdc, 0, 6),
-																																			_1: {ctor: '[]'}
-																																		}
-																																	}
-																																}
-																															}
-																														}
-																													}
-																												}
-																											}
-																										}
-																									}
-																								}
-																							}
-																						}
-																					}
-																				}
-																			}
-																		}
-																	}
-																}
-															}
-														}
-													}
-												}
-											}
+											_0: _elm_lang$svg$Svg_Attributes$height(s),
+											_1: {ctor: '[]'}
 										}
 									}
 								}
 							}
-						}
-					}
-				}
-			}
-		});
-};
-var _user$project$Chess_View$viewPiece = F2(
-	function (size, _p1) {
-		var _p2 = _p1;
+						},
+						{ctor: '[]'}),
+					_1: {ctor: '[]'}
+				},
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					A2(
+						_elm_lang$core$List$map,
+						even(0),
+						cols),
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						A2(
+							_elm_lang$core$List$map,
+							odd(1),
+							cols),
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							A2(
+								_elm_lang$core$List$map,
+								even(2),
+								cols),
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								A2(
+									_elm_lang$core$List$map,
+									odd(3),
+									cols),
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									A2(
+										_elm_lang$core$List$map,
+										even(4),
+										cols),
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										A2(
+											_elm_lang$core$List$map,
+											odd(5),
+											cols),
+										A2(
+											_elm_lang$core$Basics_ops['++'],
+											A2(
+												_elm_lang$core$List$map,
+												even(6),
+												cols),
+											A2(
+												_elm_lang$core$List$map,
+												odd(7),
+												cols))))))))));
+	});
+var _user$project$Chess_View$viewPiece = F3(
+	function (_p4, size, _p3) {
+		var _p5 = _p4;
+		var _p6 = _p3;
+		var _p9 = _p6._0._0;
+		var _p8 = _p6._0._1;
 		var s = _elm_lang$core$Basics$toString(size);
-		var _p3 = A3(_user$project$Chess_View$toCoordinates, size, _p2._0._0, _p2._0._1);
-		var baseX = _p3._0;
-		var baseY = _p3._1;
+		var _p7 = A3(_user$project$Chess_View$toCoordinates, size, _p9, _p8);
+		var baseX = _p7._0;
+		var baseY = _p7._1;
 		var xPos = _elm_lang$core$Basics$toString(baseX + (size / 2));
 		var yPos = _elm_lang$core$Basics$toString((baseY + size) - (size / 10));
 		return A2(
@@ -13513,17 +13529,23 @@ var _user$project$Chess_View$viewPiece = F2(
 				_0: _elm_lang$svg$Svg_Attributes$class('piece'),
 				_1: {
 					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$x(xPos),
+					_0: _elm_lang$svg$Svg_Events$onClick(
+						_p5._0.click(
+							{ctor: '_Tuple2', _0: _p9, _1: _p8})),
 					_1: {
 						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$y(yPos),
+						_0: _elm_lang$svg$Svg_Attributes$x(xPos),
 						_1: {
 							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$fontSize(s),
+							_0: _elm_lang$svg$Svg_Attributes$y(yPos),
 							_1: {
 								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$textAnchor('middle'),
-								_1: {ctor: '[]'}
+								_0: _elm_lang$svg$Svg_Attributes$fontSize(s),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Attributes$textAnchor('middle'),
+									_1: {ctor: '[]'}
+								}
 							}
 						}
 					}
@@ -13532,12 +13554,12 @@ var _user$project$Chess_View$viewPiece = F2(
 			{
 				ctor: '::',
 				_0: _elm_lang$svg$Svg$text(
-					_user$project$Chess_Piece$toText(_p2._1)),
+					_user$project$Chess_Piece$toText(_p6._1)),
 				_1: {ctor: '[]'}
 			});
 	});
-var _user$project$Chess_View$viewPieces = F2(
-	function (size, pieces) {
+var _user$project$Chess_View$viewPieces = F3(
+	function (config, size, pieces) {
 		return A3(
 			_elm_lang$svg$Svg$node,
 			'svg',
@@ -13548,52 +13570,64 @@ var _user$project$Chess_View$viewPieces = F2(
 			},
 			A2(
 				_elm_lang$core$List$map,
-				_user$project$Chess_View$viewPiece(
+				A2(
+					_user$project$Chess_View$viewPiece,
+					config,
 					_elm_lang$core$Basics$toFloat(size) / 8),
 				_elm_lang$core$Dict$toList(pieces)));
 	});
 var _user$project$Chess_View$view = F2(
-	function (_p4, model) {
-		var _p5 = _p4;
+	function (config, model) {
 		var size = 300;
 		var sizeText = _elm_lang$core$Basics$toString(size);
 		return A2(
-			_elm_lang$svg$Svg$svg,
+			_elm_lang$html$Html$div,
 			{
 				ctor: '::',
 				_0: _elm_lang$svg$Svg_Attributes$class('chess'),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$width(sizeText),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$height(sizeText),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$viewBox(
-								A2(
-									_elm_lang$core$Basics_ops['++'],
-									'0 0 ',
-									A2(
-										_elm_lang$core$Basics_ops['++'],
-										sizeText,
-										A2(_elm_lang$core$Basics_ops['++'], ' ', sizeText)))),
-							_1: {ctor: '[]'}
-						}
-					}
-				}
+				_1: {ctor: '[]'}
 			},
 			{
 				ctor: '::',
-				_0: _user$project$Chess_View$viewBoard(size),
+				_0: A2(
+					_elm_lang$svg$Svg$svg,
+					{
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$width(sizeText),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$height(sizeText),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$svg$Svg_Attributes$viewBox(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'0 0 ',
+										A2(
+											_elm_lang$core$Basics_ops['++'],
+											sizeText,
+											A2(_elm_lang$core$Basics_ops['++'], ' ', sizeText)))),
+								_1: {ctor: '[]'}
+							}
+						}
+					},
+					{
+						ctor: '::',
+						_0: A2(_user$project$Chess_View$viewBoard, config, size),
+						_1: {
+							ctor: '::',
+							_0: A3(_user$project$Chess_View$viewPieces, config, size, model.pieces),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$svg$Svg$text('Your browser doesn\'t support svg :('),
+								_1: {ctor: '[]'}
+							}
+						}
+					}),
 				_1: {
 					ctor: '::',
-					_0: A2(_user$project$Chess_View$viewPieces, size, model.pieces),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$svg$Svg$text('Your browser doesn\'t support svg :('),
-						_1: {ctor: '[]'}
-					}
+					_0: A2(_user$project$Chess_View$viewGraveyard, size, model.graveyard),
+					_1: {ctor: '[]'}
 				}
 			});
 	});
@@ -13601,25 +13635,191 @@ var _user$project$Chess_View$Config = function (a) {
 	return {ctor: 'Config', _0: a};
 };
 
-var _user$project$Chess_Update$subscriptions = F2(
-	function (callback, model) {
-		return _elm_lang$core$Platform_Sub$none;
-	});
+var _user$project$Chess_Update$decodeMove = function (encoded) {
+	var decoded = A2(
+		_elm_lang$core$Json_Decode$decodeString,
+		_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$int),
+		encoded);
+	var _p0 = decoded;
+	if (_p0.ctor === 'Ok') {
+		var _p1 = _p0._0;
+		if (_elm_lang$core$Native_Utils.eq(
+			_elm_lang$core$List$length(_p1),
+			4)) {
+			var tc = A2(
+				_elm_lang$core$Maybe$withDefault,
+				-1,
+				_elm_lang$core$List$head(
+					A2(_elm_lang$core$List$drop, 3, _p1)));
+			var tr = A2(
+				_elm_lang$core$Maybe$withDefault,
+				-1,
+				_elm_lang$core$List$head(
+					A2(_elm_lang$core$List$drop, 2, _p1)));
+			var fc = A2(
+				_elm_lang$core$Maybe$withDefault,
+				-1,
+				_elm_lang$core$List$head(
+					A2(_elm_lang$core$List$drop, 1, _p1)));
+			var fr = A2(
+				_elm_lang$core$Maybe$withDefault,
+				-1,
+				_elm_lang$core$List$head(_p1));
+			return _elm_lang$core$Result$Ok(
+				{
+					ctor: '_Tuple2',
+					_0: {ctor: '_Tuple2', _0: fr, _1: fc},
+					_1: {ctor: '_Tuple2', _0: tr, _1: tc}
+				});
+		} else {
+			return _elm_lang$core$Result$Err(
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'Failed parsing list ',
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						_elm_lang$core$Basics$toString(
+							_elm_lang$core$List$length(_p1)),
+						' to move.')));
+		}
+	} else {
+		return _elm_lang$core$Result$Err(_p0._0);
+	}
+};
+var _user$project$Chess_Update$encodeMove = function (_p2) {
+	var _p3 = _p2;
+	return A2(
+		_elm_lang$core$Json_Encode$encode,
+		0,
+		_elm_lang$core$Json_Encode$list(
+			{
+				ctor: '::',
+				_0: _elm_lang$core$Json_Encode$int(_p3._0._0),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$core$Json_Encode$int(_p3._0._1),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$core$Json_Encode$int(_p3._1._0),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$core$Json_Encode$int(_p3._1._1),
+							_1: {ctor: '[]'}
+						}
+					}
+				}
+			}));
+};
+var _user$project$Chess_Update$DoMove = function (a) {
+	return {ctor: 'DoMove', _0: a};
+};
 var _user$project$Chess_Update$update = F2(
 	function (msg, model) {
-		var _p0 = msg;
-		switch (_p0.ctor) {
+		var _p4 = msg;
+		switch (_p4.ctor) {
 			case 'Ignore':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'Click':
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				var _p10 = _p4._0;
+				var _p5 = model.state;
+				switch (_p5.ctor) {
+					case 'Waiting':
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{
+									state: _user$project$Chess_Model$PieceSelected(_p10)
+								}),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					case 'PieceSelected':
+						var _p6 = _p5._0;
+						return _elm_lang$core$Native_Utils.eq(_p6, _p10) ? {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{state: _user$project$Chess_Model$Waiting}),
+							_1: _elm_lang$core$Platform_Cmd$none
+						} : {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{
+									state: A2(_user$project$Chess_Model$PreviewMove, _p6, _p10)
+								}),
+							_1: _elm_lang$core$Platform_Cmd$none
+						};
+					default:
+						var _p9 = _p5._1;
+						var _p8 = _p5._0;
+						if (_elm_lang$core$Native_Utils.eq(_p8, _p10)) {
+							return {
+								ctor: '_Tuple2',
+								_0: _elm_lang$core$Native_Utils.update(
+									model,
+									{state: _user$project$Chess_Model$Waiting}),
+								_1: _elm_lang$core$Platform_Cmd$none
+							};
+						} else {
+							if (_elm_lang$core$Native_Utils.eq(_p9, _p10)) {
+								var webrtcCmd = A3(
+									_user$project$WebRTC$sendOn,
+									'chess',
+									_user$project$Chess_Update$encodeMove,
+									{ctor: '_Tuple2', _0: _p8, _1: _p9});
+								var _p7 = A2(
+									_user$project$Chess_Update$update,
+									_user$project$Chess_Update$DoMove(
+										{ctor: '_Tuple2', _0: _p8, _1: _p9}),
+									model);
+								var newModel = _p7._0;
+								return {ctor: '_Tuple2', _0: newModel, _1: webrtcCmd};
+							} else {
+								return {
+									ctor: '_Tuple2',
+									_0: _elm_lang$core$Native_Utils.update(
+										model,
+										{state: _user$project$Chess_Model$Waiting}),
+									_1: _elm_lang$core$Platform_Cmd$none
+								};
+							}
+						}
+				}
 			default:
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				var _p14 = _p4._0._1;
+				var _p13 = _p4._0._0;
+				var curPieces = model.pieces;
+				var taken = A2(_elm_lang$core$Dict$get, _p14, curPieces);
+				var newGraveyard = function () {
+					var _p11 = taken;
+					if (_p11.ctor === 'Just') {
+						return {ctor: '::', _0: _p11._0, _1: model.graveyard};
+					} else {
+						return model.graveyard;
+					}
+				}();
+				var moved = A2(_elm_lang$core$Dict$get, _p13, curPieces);
+				var newPieces = function () {
+					var _p12 = moved;
+					if (_p12.ctor === 'Just') {
+						return A3(
+							_elm_lang$core$Dict$insert,
+							_p14,
+							_p12._0,
+							A2(_elm_lang$core$Dict$remove, _p13, curPieces));
+					} else {
+						return curPieces;
+					}
+				}();
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{pieces: newPieces, graveyard: newGraveyard, state: _user$project$Chess_Model$Waiting}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 		}
-	});
-var _user$project$Chess_Update$FinalizeMove = F2(
-	function (a, b) {
-		return {ctor: 'FinalizeMove', _0: a, _1: b};
 	});
 var _user$project$Chess_Update$Click = function (a) {
 	return {ctor: 'Click', _0: a};
@@ -13627,18 +13827,26 @@ var _user$project$Chess_Update$Click = function (a) {
 var _user$project$Chess_Update$createConfig = function (wrap) {
 	return _user$project$Chess_View$Config(
 		{
-			click: function (_p1) {
+			click: function (_p15) {
 				return wrap(
-					_user$project$Chess_Update$Click(_p1));
+					_user$project$Chess_Update$Click(_p15));
 			},
 			finalizeMove: F2(
 				function (from, to) {
 					return wrap(
-						A2(_user$project$Chess_Update$FinalizeMove, from, to));
+						_user$project$Chess_Update$DoMove(
+							{ctor: '_Tuple2', _0: from, _1: to}));
 				})
 		});
 };
 var _user$project$Chess_Update$Ignore = {ctor: 'Ignore'};
+var _user$project$Chess_Update$subscriptions = F2(
+	function (callback, model) {
+		return A2(
+			_elm_lang$core$Platform_Sub$map,
+			callback,
+			A4(_user$project$WebRTC$listenOn, 'chess', _user$project$Chess_Update$decodeMove, _user$project$Chess_Update$DoMove, _user$project$Chess_Update$Ignore));
+	});
 
 var _user$project$Main$update = F2(
 	function (msg, model) {
@@ -13680,6 +13888,17 @@ var _user$project$Main$update = F2(
 					_1: gameCmd
 				};
 		}
+	});
+var _user$project$Main$updateSynced = F2(
+	function (msg, model) {
+		var _p5 = A2(_user$project$Main$update, msg, model);
+		var newModel = _p5._0;
+		var cmd = _p5._1;
+		return {
+			ctor: '_Tuple2',
+			_0: _user$project$AutoSync$autoSync(newModel),
+			_1: cmd
+		};
 	});
 var _user$project$Main$Model = F2(
 	function (a, b) {
@@ -13732,13 +13951,13 @@ var _user$project$Main$subscriptions = function (model) {
 		});
 };
 var _user$project$Main$main = _elm_lang$html$Html$program(
-	{init: _user$project$Main$init, view: _user$project$Main$view, update: _user$project$Main$update, subscriptions: _user$project$Main$subscriptions})();
+	{init: _user$project$Main$init, view: _user$project$Main$view, update: _user$project$Main$updateSynced, subscriptions: _user$project$Main$subscriptions})();
 var _user$project$Main$Test = {ctor: 'Test'};
 
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
-    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Chess.Update.Msg":{"args":[],"tags":{"Ignore":[],"FinalizeMove":["Chess.Model.Position","Chess.Model.Position"],"Click":["Chess.Model.Position"]}},"Main.Msg":{"args":[],"tags":{"Received":["WebRTC.Message"],"ForGame":["Chess.Update.Msg"],"ForChat":["Chat.Update.Msg"],"Test":[]}},"Chat.Update.Msg":{"args":[],"tags":{"Ignore":[],"Receive":["Chat.Model.Message"],"Input":["String"],"Send":["Chat.Model.Message"],"SendDebug":[]}}},"aliases":{"WebRTC.ChannelId":{"args":[],"type":"String"},"WebRTC.Message":{"args":[],"type":"{ channel : WebRTC.ChannelId, data : WebRTC.Data }"},"WebRTC.Data":{"args":[],"type":"String"},"Chat.Model.Message":{"args":[],"type":"{ user : String, text : String }"},"Chess.Model.Position":{"args":[],"type":"( Int, Int )"}},"message":"Main.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"message":"Main.Msg","aliases":{"Chat.Model.Message":{"type":"{ user : String, text : String }","args":[]},"Chess.Model.Position":{"type":"( Int, Int )","args":[]},"WebRTC.ChannelId":{"type":"String","args":[]},"WebRTC.Message":{"type":"{ channel : WebRTC.ChannelId, data : WebRTC.Data }","args":[]},"WebRTC.Data":{"type":"String","args":[]}},"unions":{"Main.Msg":{"tags":{"Received":["WebRTC.Message"],"ForGame":["Chess.Update.Msg"],"ForChat":["Chat.Update.Msg"],"Test":[]},"args":[]},"Chat.Update.Msg":{"tags":{"Send":["Chat.Model.Message"],"SendDebug":[],"Ignore":[],"Receive":["Chat.Model.Message"],"Input":["String"]},"args":[]},"Chess.Update.Msg":{"tags":{"DoMove":["( Chess.Model.Position, Chess.Model.Position )"],"Click":["Chess.Model.Position"],"Ignore":[]},"args":[]}}},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])
