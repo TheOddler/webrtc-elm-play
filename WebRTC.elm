@@ -1,4 +1,4 @@
-port module WebRTC exposing ( Message, send, sendOn, sendRawOn, listen, listenOn, listenRawOn )
+port module WebRTC exposing ( Message, sendOn, sendRawOn, listenOn, listenRawOn )
 
 type alias ChannelId = String
 type alias Data = String
@@ -8,11 +8,11 @@ type alias Message =
     }
 
 -- Send data to js
-port send : Message -> Cmd msg
+port sendPort : Message -> Cmd msg
 
 sendRawOn : ChannelId -> Data -> Cmd msg
 sendRawOn channel message =
-    send <| Message channel <| message
+    sendPort <| Message channel <| message
 
 sendOn : ChannelId -> (e -> Data) -> e -> Cmd msg
 sendOn channel encoder message =

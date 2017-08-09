@@ -13,9 +13,6 @@
         <script src="https://rtcmulticonnection.herokuapp.com/socket.io/socket.io.js"></script>
         <script src="main.js" type="text/javascript"></script>
         <script type="text/javascript">
-            // Create elm
-            var app = Elm.Main.embed(document.getElementById('main'))
-
             // Create RTCMultiConnection
             var connection = new RTCMultiConnection()
             connection.socketURL = 'https://rtcmulticonnection.herokuapp.com:443/'
@@ -31,11 +28,14 @@
                 console.log((roomExists ? 'You joined room' : 'You created room') + ": " + roomid)
             })
 
+            // Create elm
+            var app = Elm.Main.embed(document.getElementById('main'))
+
             // Connect Elm and WebRTC
             connection.onmessage = function (message) {
                 app.ports.listen.send(message.data)
             }
-            app.ports.send.subscribe(function(message) {
+            app.ports.sendPort.subscribe(function(message) {
                 connection.send(message)
             })
 		</script>
