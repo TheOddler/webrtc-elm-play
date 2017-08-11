@@ -25,26 +25,38 @@ view config model =
             [ svg
                 [ width sizeText, height sizeText, viewBox <| "0 0 " ++ sizeText ++ " " ++ sizeText ]
                 [ viewBoard config size
-                , viewPieces config size model.pieces
+                , viewPieces config size model.pieces model.state
                 , text "Your browser doesn't support svg :("
                 ]
             , viewGraveyard size model.graveyard
             ]
 
-viewPieces : Config msg -> Int -> Dict Position Piece -> Svg msg
-viewPieces config size pieces =
+viewPieces : Config msg -> Int -> Dict Position Piece -> GameState -> Svg msg
+viewPieces config size pieces state =
     node "svg" [class "pieces"] 
-        <| List.map (viewPiece config <| toFloat size / 8) <| Dict.toList pieces
+        <| List.map (viewPiece config (toFloat size / 8) state) <| Dict.toList pieces
 
-viewPiece : Config msg -> Float -> (Position, Piece) -> Svg msg
-viewPiece (Config cnfg) size ((row, col), piece) = 
+viewPiece : Config msg -> Float -> GameState -> (Position, Piece) -> Svg msg
+viewPiece (Config cnfg) size state ((row, col), piece) = 
     let
         (baseX, baseY) = toCoordinates size row col
         xPos = toString <| baseX + size / 2
         yPos = toString <| baseY + size - size / 10
         s = toString size
+        isSel = case state of
+            Waiting -> False
+            PieceSelected pos -> pos == (row, col)
+            PreviewMove from _ -> from == (row, col)
     in 
-        text_ [ class "piece", onClick <| cnfg.click (row, col), x xPos, y yPos, fontSize s, textAnchor "middle" ] [ text <| Piece.toText piece ]
+        text_ 
+            [ class <| String.append "piece" (if isSel then " selected" else "")
+            , onClick <| cnfg.click (row, col)
+            , x xPos, y yPos
+            , fontSize s
+            , textAnchor "middle" 
+            ] 
+            [ text <| Piece.toText piece 
+            ]
 
 viewBoard : Config msg -> Int -> Svg msg
 viewBoard config size =
