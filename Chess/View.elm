@@ -24,7 +24,7 @@ view config model =
         div [class "chess"]
             [ svg
                 [ width sizeText, height sizeText, viewBox <| "0 0 " ++ sizeText ++ " " ++ sizeText ]
-                [ viewBoard config size
+                [ viewBoard config size model.state
                 , viewPieces config size model.pieces model.state
                 , text "Your browser doesn't support svg :("
                 ]
@@ -58,12 +58,12 @@ viewPiece (Config cnfg) size state ((row, col), piece) =
             [ text <| Piece.toText piece 
             ]
 
-viewBoard : Config msg -> Int -> Svg msg
-viewBoard config size =
+viewBoard : Config msg -> Int -> GameState -> Svg msg
+viewBoard config size state =
     let 
         vc = viewCell config (toFloat size / 8)
-        even = (\row col -> vc (if col % 2 == 0 then "dark cell" else "light cell") row col)
-        odd = (\row col -> vc (if col % 2 == 1 then "dark cell" else "light cell") row col)
+        even = (\row col -> vc (if col % 2 == 0 then "dark cell" else "light cell") state row col)
+        odd = (\row col -> vc (if col % 2 == 1 then "dark cell" else "light cell") state row col)
         cols = List.range 0 7
         s = toString size
     in 
@@ -78,12 +78,16 @@ viewBoard config size =
             ++ (List.map (even 6) cols)
             ++ (List.map (odd  7) cols)
 
-viewCell : Config msg -> Float -> String -> Int -> Int -> Svg msg
-viewCell (Config cnfg) size class_ row col =
+viewCell : Config msg -> Float -> String -> GameState -> Int -> Int -> Svg msg
+viewCell (Config cnfg) size class_ state row col =
     let
         (xPos, yPos) = toCoordinates size row col
+        isPrev = case state of
+            Waiting -> False
+            PieceSelected pos -> False
+            PreviewMove _ to -> to == (row, col)
     in
-        rect [ class class_
+        rect [ class <| String.append class_ (if isPrev then " preview" else "")
              , onClick <| cnfg.click (row, col)
              , x <| toString xPos, y <| toString yPos
              , width <| toString size, height <| toString size 

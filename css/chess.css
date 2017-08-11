@@ -10,6 +10,14 @@
 .chess .board .light {
     fill: rgba(140, 70, 20, 0);
 }
+
+.chess .board .dark.preview {
+    fill: rgba(140, 70, 20, 0.6);
+}
+.chess .board .light.preview {
+    fill: rgba(140, 70, 20, 0.2);
+}
+
 .chess .piece {
     cursor: pointer;
 }
